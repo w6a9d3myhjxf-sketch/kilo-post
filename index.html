@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>N.E.X.C.O. - Secure System</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background-color: #000000;
+      color: #ffffff;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      align-items: center;
+      height: 100vh;
+      overflow: hidden;
+      user-select: none;
+      box-sizing: border-box;
+      padding: 20px 0;
+    }
+
+    /* ログイン画面オーバーレイ */
+    #login-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: #0b0b0b;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      z-index: 9999;
+    }
+    .login-box {
+      background: #161616;
+      padding: 30px;
+      border-radius: 12px;
+      border: 1px solid #333333;
+      text-align: center;
+      width: 80%;
+      max-width: 320px;
+    }
+    .login-title {
+      font-size: 1.2rem;
+      font-weight: bold;
+      color: #00e5ff;
+      margin-bottom: 5px;
+    }
+    .login-sub {
+      font-size: 0.75rem;
+      color: #888888;
+      margin-bottom: 20px;
+    }
+    .login-input {
+      width: 100%;
+      padding: 12px;
+      font-size: 1rem;
+      background: #222222;
+      border: 1px solid #444444;
+      color: #ffffff;
+      border-radius: 6px;
+      box-sizing: border-box;
+      text-align: center;
+      margin-bottom: 15px;
+    }
+    .login-btn {
+      width: 100%;
+      padding: 12px;
+      font-size: 1rem;
+      font-weight: bold;
+      background: #00e5ff;
+      color: #000000;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    .login-error {
+      color: #ff5252;
+      font-size: 0.8rem;
+      margin-top: 10px;
+      display: none;
+    }
+
+    /* メインシステム画面 */
+    .header {
+      text-align: center;
+      width: 100%;
+    }
+    .system-title {
+      font-size: 1.5rem;
+      font-weight: bold;
+      letter-spacing: 2px;
+      color: #00e5ff;
+    }
+    .system-sub {
+      font-size: 0.65rem;
+      color: #888888;
+      margin-top: 2px;
+    }
+
+    .control-panel {
+      display: flex;
+      gap: 15px;
+      margin: 10px 0;
+      justify-content: center;
+    }
+    .btn-bound {
+      background-color: #222222;
+      color: #aaaaaa;
+      border: 2px solid #444444;
+      padding: 8px 20px;
+      font-size: 1rem;
+      font-weight: bold;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+    .btn-bound.active {
+      background-color: #ffeb3b;
+      color: #000000;
+      border-color: #ffeb3b;
+    }
+
+    .kp-container {
+      text-align: center;
+      padding: 0 10px;
+    }
+    .kp-value {
+      font-size: 22vw;
+      font-weight: 900;
+      line-height: 1.0;
+      color: #ffeb3b;
+      text-shadow: 0 0 20px rgba(255, 235, 59, 0.3);
+    }
+    .kp-unit {
+      font-size: 6vw;
+      font-weight: bold;
+      color: #ffffff;
+      margin-left: 5px;
+    }
+    .kp-message {
+      font-size: 13vw;
+      font-weight: 900;
+      color: #ff5252;
+      text-shadow: 0 0 20px rgba(255, 82, 82, 0.3);
+    }
+    .route-name {
+      font-size: 1.2rem;
+      color: #00e5ff;
+      margin-top: 10px;
+      font-weight: bold;
+    }
+
+    .footer {
+      text-align: center;
+      font-size: 0.8rem;
+      color: #888888;
+      background: #111111;
+      width: 100%;
+      padding: 10px 0;
+      border-top: 1px solid #222222;
+    }
+    #gps-status {
+      color: #ff5252;
+      font-weight: bold;
+    }
+    #gps-status.active {
+      color: #00e676;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- パスワード認証画面（最初に必ず表示） -->
+  <div id="login-overlay">
+    <div class="login-box">
+      <div class="login-title">N.E.X.C.O. AUTH</div>
+      <div class="login-sub">RESTRICTED ACCESS SYSTEM</div>
+      <input type="password" id="pass-input" class="login-input" placeholder="PASSCODE" enterkeyhint="go">
+      <button class="login-btn" onclick="checkPassword()">UNLOCK</button>
+      <div id="login-error" class="login-error">パスワードが違います</div>
+    </div>
+  </div>
+
+  <!-- メインシステム画面（認証後に表示） -->
+  <div class="header">
+    <div class="system-title">N.E.X.C.O.</div>
+    <div class="system-sub">Network for Expressway Coordinate & Observation</div>
+    
+    <div class="control-panel">
+      <button id="btn-up" class="btn-bound active" onclick="setBound('up')">UP (上り)</button>
+      <button id="btn-down" class="btn-bound" onclick="setBound('down')">DOWN (下り)</button>
+    </div>
+  </div>
+
+  <div class="kp-container">
+    <div class="route-name" id="route-display">東北自動車道 (川口?佐野藤岡)</div>
+    <div id="display-area">
+      <span class="kp-message">管理区域外</span>
+    </div>
+  </div>
+
+  <div class="footer">
+    Status: <span id="gps-status">GPS未検出 / 非対応端末</span><br>
+    Lat/Lng: <span id="coord-display">--.----, --.----</span> (Acc: <span id="acc-display">--</span>m)
+  </div>
+
+  <script>
+    // ==========================================
+    // ★ ここでパスワードを設定できます（お好みで変更可能）
+    // ==========================================
+    const SYSTEM_PASSWORD = "nexcosecret"; 
+
+    function checkPassword() {
+      const inputVal = document.getElementById('pass-input').value;
+      const errorEl = document.getElementById('login-error');
+
+      if (inputVal === SYSTEM_PASSWORD) {
+        // パスワード一致：ログイン画面を消して、GPS監視をスタート
+        document.getElementById('login-overlay').style.display = 'none';
+        startGpsSystem();
+      } else {
+        // パスワード不一致
+        errorEl.style.display = 'block';
+      }
+    }
+
+    // Enterキーでもログインできるようにする
+    document.getElementById('pass-input').addEventListener('keypress', function(e) {
+      if (e.key === 'Enter') {
+        checkPassword();
+      }
+    });
+
+    // ==========================================
+    // メインのGPSシステム処理（認証後にのみ実行される）
+    // ==========================================
+    function startGpsSystem() {
+      const tohokuRoute = [
+        { kp: 0.0,  lat: 35.8192, lng: 139.7433 }, // 川口JCT
+        { kp: 5.4,  lat: 35.8642, lng: 139.7611 }, // 浦和IC
+        { kp: 12.0, lat: 35.9185, lng: 139.7562 }, // 岩槻IC
+        { kp: 21.5, lat: 36.0011, lng: 139.7345 }, // 蓮田SA付近
+        { kp: 26.6, lat: 36.0461, lng: 139.7388 }, // 久喜IC
+        { kp: 33.1, lat: 36.1022, lng: 139.7544 }, // 加須IC
+        { kp: 41.3, lat: 36.1730, lng: 139.7521 }, // 羽生PA付近
+        { kp: 45.4, lat: 36.2100, lng: 139.7510 }, // 館林IC
+        { kp: 55.5, lat: 36.3015, lng: 139.7212 }  // 佐野藤岡IC
+      ];
+
+      let currentBound = 'up';
+
+      window.setBound = function(bound) {
+        currentBound = bound;
+        document.getElementById('btn-up').classList.toggle('active', bound === 'up');
+        document.getElementById('btn-down').classList.toggle('active', bound === 'down');
+      };
+
+      function calculateKP(lat, lng) {
+        let closestKP = null;
+        let minDistance = Infinity;
+
+        for (let i = 0; i < tohokuRoute.length - 1; i++) {
+          let p1 = tohokuRoute[i];
+          let p2 = tohokuRoute[i+1];
+
+          let x1 = p1.lng, y1 = p1.lat;
+          let x2 = p2.lng, y2 = p2.lat;
+          let x0 = lng,    y0 = lat;
+
+          let A = x0 - x1;
+          let B = y0 - y1;
+          let C = x2 - x1;
+          let D = y2 - y1;
+
+          let dot = A * C + B * D;
+          let lenSq = C * C + D * D;
+          let param = -1;
+          if (lenSq !== 0) param = dot / lenSq;
+
+          let xx, yy;
+          let ratio = 0;
+
+          if (param < 0) {
+            xx = x1; yy = y1;
+            ratio = 0;
+          } else if (param > 1) {
+            xx = x2; yy = y2;
+            ratio = 1;
+          } else {
+            xx = x1 + param * C;
+            yy = y1 + param * D;
+            ratio = param;
+          }
+
+          let dist = Math.hypot(x0 - xx, y0 - yy);
+          
+          if (dist < minDistance) {
+            minDistance = dist;
+            closestKP = p1.kp + (p2.kp - p1.kp) * ratio;
+          }
+        }
+
+        if (closestKP === null || closestKP < 0.0 || closestKP > 55.5) {
+          return null;
+        }
+
+        return closestKP;
+      }
+
+      const statusEl = document.getElementById('gps-status');
+      const displayArea = document.getElementById('display-area');
+      const coordEl = document.getElementById('coord-display');
+      const accEl = document.getElementById('acc-display');
+
+      function showMessage(text) {
+        displayArea.innerHTML = `<span class="kp-message">${text}</span>`;
+      }
+
+      function showKP(kpValue) {
+        displayArea.innerHTML = `
+          <span class="kp-value">${kpValue}</span>
+          <span class="kp-unit">kp</span>
+        `;
+      }
+
+      if ("geolocation" in navigator) {
+        navigator.geolocation.watchPosition(
+          (position) => {
+            const lat = position.coords.latitude;
+            const lng = position.coords.longitude;
+            const accuracy = position.coords.accuracy;
+
+            if (!accuracy || accuracy > 1000) {
+              statusEl.textContent = "GPS Error / Position Denied";
+              statusEl.classList.remove('active');
+              showMessage("管理区域外");
+              coordEl.textContent = `${lat.toFixed(4)}, ${lng.toFixed(4)} (Low Acc)`;
+              accEl.textContent = accuracy ? Math.round(accuracy) : "Unknown";
+              return;
+            }
+
+            coordEl.textContent = `${lat.toFixed(4)}, ${lng.toFixed(4)}`;
+            accEl.textContent = Math.round(accuracy);
+            statusEl.textContent = "GPS Active (High Accuracy)";
+            statusEl.classList.add('active');
+
+            const kp = calculateKP(lat, lng);
+            if (kp === null) {
+              showMessage("管理区域外");
+            } else {
+              showKP(kp.toFixed(2));
+            }
+          },
+          (error) => {
+            statusEl.textContent = "GPS Error / Position Denied";
+            statusEl.classList.remove('active');
+            showMessage("管理区域外");
+          },
+          {
+            enableHighAccuracy: true,
+            maximumAge: 1000,
+            timeout: 10000
+          }
+        );
+      } else {
+        statusEl.textContent = "GPS Not Supported on this Device";
+        statusEl.classList.remove('active');
+        showMessage("管理区域外");
+      }
+    }
+  </script>
+</body>
+</html>
