@@ -185,7 +185,7 @@
         .header-top-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
         .brand { font-size: 10px; color: #00ffff; letter-spacing: 1px; font-weight: bold; text-align: center; width: 100%; }
         
-        /* 右上の補助ボタン群（設定ボタン削除） */
+        /* 右上の補助ボタン群 */
         .top-right-controls { display: flex; gap: 4px; position: absolute; right: 10px; top: 8px; }
         .top-right-btn { padding: 4px 7px; font-size: 10px; font-weight: bold; border-radius: 4px; cursor: pointer; border: 1px solid; }
         .btn-hazard-list { background: #441111; color: #ff6666; border-color: #ff4444; }
@@ -284,7 +284,7 @@
 
             <div class="manual-link" onclick="openManualModal()">[説明] システム説明書・プライバシー仕様はこちら</div>
 
-            <input type="password" id="pass-input" placeholder="パスワードを入力">
+            <input type="password" id="pass-input" placeholder="パスワードを入力" onkeydown="if(event.key==='Enter') checkPassword()">
             <button onclick="checkPassword()">Approve and log in</button>
             <div id="auth-error">パスワードが違います</div>
 
@@ -300,7 +300,7 @@
                 <div class="manual-section manual-section-alert">
                     <h4>[警報] アンカーポイント補間仕様（実測データ反映版）</h4>
                     <ul>
-                        <li><b>実測ベース補正:</b> 現場の実測データ（下り30kpの座標など）および主要IC/JCTのアンカーポイントを基に、区間内を直線補間して高精度にKPを算出します。</li>
+                        <li><b>実測ベース補正:</b> 現場の実測データおよび主要IC/JCTのアンカーポイントを基に、区間内を直線補間して高精度にKPを算出します。</li>
                     </ul>
                 </div>
             </div>
@@ -383,7 +383,7 @@
         <div id="pwd-modal-content">
             <h3 style="font-size: 15px; color: #ffcc00;">削除確認</h3>
             <p style="font-size: 11px; color: #aaa; margin-top: 4px;">削除するにはパスワードを入力してください</p>
-            <input type="password" id="delete-pwd-input" placeholder="????">
+            <input type="password" id="delete-pwd-input" placeholder="••••" onkeydown="if(event.key==='Enter') confirmDeleteTarget()">
             <div class="modal-btn-row">
                 <button class="modal-btn btn-cancel" onclick="closeDeletePwdModal()">キャンセル</button>
                 <button class="modal-btn btn-add" onclick="confirmDeleteTarget()">確認</button>
@@ -399,7 +399,7 @@
     <header>
         <div class="header-top-row">
             <div class="brand">Network for Expressway Coordinate & Observation</div>
-            <!-- 右上に配置された補助ボタン群（設定削除） -->
+            <!-- 右上に配置された補助ボタン群 -->
             <div class="top-right-controls">
                 <button class="top-right-btn btn-hazard-list" onclick="openHazardListModal('ALL')">[警告] 危険リスト</button>
                 <button class="top-right-btn btn-support" onclick="openSupportModal()">[情報] コメント</button>
@@ -475,7 +475,34 @@
     </footer>
 
     <script>
-        function getAppPassword() { return "nexcokp"; }
+        // パスワード文字列をそのまま平文で露出しなように符号化（難読化）した値
+        const OBFUSCATED_PASSWORD = "6e6578636f6b70"; // "nexcokp" の16進数表現
+
+        function verifyPassword(input) {
+            let encoded = "";
+            for (let i = 0; i < input.length; i++) {
+                let hex = input.charCodeAt(i).toString(16);
+                if (hex.length < 2) hex = "0" + hex;
+                encoded += hex;
+            }
+            return encoded === OBFUSCATED_PASSWORD;
+        }
+
+        let authenticated = false;
+
+        function checkPassword() {
+            const inputVal = document.getElementById("pass-input").value;
+
+            if (verifyPassword(inputVal)) {
+                authenticated = true;
+                document.getElementById("auth-overlay").style.display = "none";
+                document.getElementById("auth-error").style.display = "none";
+                initSystem();
+                loadPinnedKp();
+            } else {
+                document.getElementById("auth-error").style.display = "block";
+            }
+        }
 
         let deleteTargetType = null;
         let deleteTargetIndex = null;
@@ -484,17 +511,6 @@
 
         function formatKp(rawKp) {
             return rawKp.toFixed(2);
-        }
-
-        function checkPassword() {
-            const inputVal = document.getElementById("pass-input").value;
-            if (inputVal === getAppPassword()) {
-                document.getElementById("auth-overlay").style.display = "none";
-                initSystem();
-                loadPinnedKp();
-            } else {
-                document.getElementById("auth-error").style.display = "block";
-            }
         }
 
         function openManualModal() { document.getElementById('manual-modal').style.display = 'flex'; }
@@ -741,7 +757,7 @@
                             <span class="comment-date">${c.date}</span>
                         </div>
                         <div class="comment-text">${escapeHtml(c.text)}</div>
-                        <button class="comment-delete" onclick="promptDelete('comment', ${idx})">・</button>
+                        <button class="comment-delete" onclick="promptDelete('comment', ${idx})">·</button>
                     </div>
                 `;
             });
@@ -764,7 +780,8 @@
 
         function confirmDeleteTarget() {
             const entered = document.getElementById('delete-pwd-input').value;
-            if (entered === getAppPassword()) {
+
+            if (verifyPassword(entered)) {
                 if (deleteTargetType === 'comment') {
                     const comments = getStoredComments();
                     comments.splice(deleteTargetIndex, 1);
@@ -871,12 +888,14 @@
             ]
         };
 
+        // 東北道のアンカーポイント
         const tohokuAnchors = [
-            { lat: 35.8050, kp: 0.0 },
-            { lat: 35.8650, kp: 4.8 },
-            { lat: 36.05559, kp: 30.0 },
-            { lat: 36.1770, kp: 33.1 },
-            { lat: 36.3100, kp: 55.4 }
+            { lat: 35.8050, kp: 0.0 },   // 川口JCT
+            { lat: 35.8650, kp: 4.8 },   // 浦和TB
+            { lat: 36.00557, kp: 20.0 }, // 新規追加の実測データ (下り20kp)
+            { lat: 36.05559, kp: 30.0 }, // 実測データ (下り30kp)
+            { lat: 36.1770, kp: 33.1 },  // 加須IC付近
+            { lat: 36.3100, kp: 55.4 }   // 佐野藤岡IC
         ];
 
         function manualSelectRoute(route) {
