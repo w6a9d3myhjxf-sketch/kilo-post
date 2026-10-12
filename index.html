@@ -23,7 +23,7 @@
         body.shuto-alert-mode { background-color: #330000; }
 
         /* 各種モーダルオーバーレイ */
-        #auth-overlay, #support-modal, #manual-modal, #camera-modal, #settings-modal, #hazard-alert-modal, #hazard-list-modal {
+        #auth-overlay, #support-modal, #manual-modal, #camera-modal, #hazard-alert-modal, #hazard-list-modal {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0,0,0,0.92);
@@ -40,7 +40,7 @@
             border-radius: 10px;
             padding: 20px 18px;
             width: 90%;
-            max-width: 380px;
+            max-width: 400px;
             text-align: center;
             box-shadow: 0 4px 20px rgba(0,0,0,0.6);
         }
@@ -49,9 +49,9 @@
         }
         .disclaimer-box {
             background: rgba(255, 68, 68, 0.08); border: 1px dashed rgba(255, 68, 68, 0.4);
-            border-radius: 6px; padding: 10px; font-size: 11px; color: #ff9999; text-align: left; line-height: 1.4; margin-bottom: 10px;
+            border-radius: 6px; padding: 10px; font-size: 11px; color: #ff9999; text-align: left; line-height: 1.5; margin-bottom: 10px;
         }
-        .disclaimer-box b { color: #ffcc00; }
+        .disclaimer-box b { color: #ffcc00; display: block; margin-bottom: 4px; }
         .manual-link { font-size: 11px; color: #00ffff; text-decoration: underline; cursor: pointer; display: inline-block; margin-bottom: 12px; }
 
         .auth-copyright, .app-copyright { font-size: 10px; color: #777; letter-spacing: 0.5px; }
@@ -75,12 +75,6 @@
         .manual-section { margin-bottom: 12px; background: rgba(255,255,255,0.03); border-left: 3px solid #00ffff; padding: 8px 10px; border-radius: 0 4px 4px 0; }
         .manual-section-alert { border-left-color: #00ff66; background: rgba(0, 255, 102, 0.05); }
 
-        /* クラウド設定モーダル */
-        #settings-modal-content { background: #1a1a1a; border: 1px solid #ffcc00; border-radius: 10px; padding: 16px; width: 90%; max-width: 360px; text-align: left; }
-        .setting-field { margin-bottom: 10px; }
-        .setting-field label { font-size: 11px; color: #aaa; display: block; margin-bottom: 3px; }
-        .setting-field input { width: 100%; padding: 8px; background: #111; border: 1px solid #444; color: #fff; border-radius: 4px; font-size: 13px; }
-
         /* カメラ撮影モーダル */
         #camera-modal-content { background: #151515; border: 1px solid #ff8800; border-radius: 10px; padding: 12px; width: 95%; max-width: 400px; text-align: center; max-height: 95vh; display: flex; flex-direction: column; align-items: center; }
         .camera-viewport { position: relative; width: 100%; height: 320px; background: #000; border-radius: 6px; overflow: hidden; display: flex; justify-content: center; align-items: center; margin-bottom: 8px; }
@@ -90,7 +84,7 @@
         .cam-info-sub { font-size: 10px; color: #00ff66; margin-top: 2px; }
         .memo-input-on-cam { width: 100%; padding: 6px; background: #111; color: #fff; border: 1px solid #555; border-radius: 4px; font-size: 13px; margin-bottom: 8px; text-align: left; }
 
-        /* ?? 危険箇所リスト専用モーダル */
+        /* 危険箇所リスト専用モーダル */
         #hazard-list-modal-content {
             background: #181212;
             border: 2px solid #ff4444;
@@ -164,7 +158,7 @@
             cursor: pointer;
         }
 
-        /* ?? テキストコメント専用モーダル */
+        /* テキストコメント専用モーダル */
         #support-modal-content {
             background: #222; border: 1px solid #555; border-radius: 10px; padding: 15px; width: 95%; max-width: 400px; text-align: center; max-height: 90vh; display: flex; flex-direction: column;
         }
@@ -189,14 +183,13 @@
         /* ヘッダーデザイン */
         header { padding: 8px 10px; background: rgba(20,20,20,0.9); border-bottom: 1px solid #333; position: relative; }
         .header-top-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
-        .brand { font-size: 10px; color: #00ffff; letter-spacing: 1px; font-weight: bold; text-align: left; }
+        .brand { font-size: 10px; color: #00ffff; letter-spacing: 1px; font-weight: bold; text-align: center; width: 100%; }
         
-        /* 右上の補助ボタン群 */
-        .top-right-controls { display: flex; gap: 4px; }
+        /* 右上の補助ボタン群（設定ボタン削除） */
+        .top-right-controls { display: flex; gap: 4px; position: absolute; right: 10px; top: 8px; }
         .top-right-btn { padding: 4px 7px; font-size: 10px; font-weight: bold; border-radius: 4px; cursor: pointer; border: 1px solid; }
         .btn-hazard-list { background: #441111; color: #ff6666; border-color: #ff4444; }
         .btn-support { background: #333; color: #ffcc00; border-color: #ffcc00; }
-        .btn-settings { background: #222; color: #ff8800; border-color: #ff8800; }
 
         /* 中央配置の操作行 */
         .control-row { display: flex; justify-content: center; gap: 6px; margin-top: 3px; }
@@ -204,7 +197,7 @@
         .select-btn.active { background: #00ffff; color: #000; border-color: #00ffff; }
         .dir-btn.active { background: #ffcc00; color: #000; border-color: #ffcc00; }
 
-        /* ?? 右下に固定配置する撮影ボタン */
+        /* 右下に固定配置する撮影ボタン */
         .floating-cam-btn {
             position: fixed;
             bottom: 25px;
@@ -231,42 +224,42 @@
         #manual-panel button { padding: 4px 10px; background: #ffcc00; border: none; font-weight: bold; border-radius: 4px; cursor: pointer; color: #000; }
 
         /* メイン画面 */
-        main { flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; padding: 5px; position: relative; }
-        .route-name { font-size: 14px; color: #00ffff; margin-bottom: 2px; font-weight: bold; }
-        .current-zone-display { font-size: 15px; font-weight: bold; color: #00ff66; background: rgba(0, 255, 102, 0.1); border: 1px solid #00ff66; padding: 2px 12px; border-radius: 12px; margin-bottom: 4px; display: inline-block; }
+        main { flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; padding: 2px; position: relative; }
+        .route-name { font-size: 13px; color: #00ffff; margin-bottom: 1px; font-weight: bold; }
+        .current-zone-display { font-size: 14px; font-weight: bold; color: #00ff66; background: rgba(0, 255, 102, 0.1); border: 1px solid #00ff66; padding: 2px 10px; border-radius: 12px; margin-bottom: 2px; display: inline-block; }
         
-        /* ?? キロポスト表示 (84px / 900) */
-        .kp-display { font-size: 84px; font-weight: 900; color: #ffcc00; text-shadow: 0 0 30px rgba(255,204,0,0.5); letter-spacing: 1px; margin: 2px 0; line-height: 1.1; }
-        .kp-unit { font-size: 34px; margin-left: 2px; font-weight: bold; }
+        /* キロポスト表示（最大化） */
+        .kp-display { font-size: clamp(96px, 24vw, 148px); font-weight: 900; color: #ffcc00; text-shadow: 0 0 40px rgba(255,204,0,0.7); letter-spacing: -1px; margin: 0; line-height: 0.95; }
+        .kp-unit { font-size: clamp(32px, 8vw, 48px); margin-left: 2px; font-weight: bold; }
 
-        /* ?? 周辺接近時（100m以内）の点滅アラートボタン */
+        /* 周辺接近時（100m以内）の点滅アラートボタン */
         .hazard-blink-btn {
-            display: none; background: #ff0000; color: #fff; border: 2px solid #ffcc00; font-size: 13px; font-weight: 900; padding: 6px 14px; border-radius: 20px; margin-top: 6px; cursor: pointer; animation: hazard-pulse 0.8s infinite alternate; box-shadow: 0 0 15px rgba(255, 0, 0, 0.6);
+            display: none; background: #ff0000; color: #fff; border: 2px solid #ffcc00; font-size: 12px; font-weight: 900; padding: 5px 12px; border-radius: 20px; margin-top: 4px; cursor: pointer; animation: hazard-pulse 0.8s infinite alternate; box-shadow: 0 0 15px rgba(255, 0, 0, 0.6);
         }
         @keyframes hazard-pulse {
             from { transform: scale(1); opacity: 0.85; background-color: #cc0000; }
             to { transform: scale(1.06); opacity: 1; background-color: #ff0000; }
         }
 
-        .quick-action-area { margin-top: 6px; display: flex; flex-direction: column; align-items: center; gap: 4px; width: 90%; max-width: 360px; }
+        .quick-action-area { margin-top: 4px; display: flex; flex-direction: column; align-items: center; gap: 3px; width: 90%; max-width: 360px; }
         .quick-btn-row { display: flex; gap: 8px; width: 100%; }
-        .btn-quick-record { flex: 2; background: #ff8800; color: #000; font-weight: bold; font-size: 12px; padding: 6px; border: none; border-radius: 6px; cursor: pointer; }
-        .btn-quick-clear { flex: 1; background: #444; color: #ccc; font-weight: bold; font-size: 11px; padding: 6px; border: none; border-radius: 6px; cursor: pointer; }
-        .pinned-kp-display { width: 100%; font-size: 11px; color: #00ff66; background: rgba(0,255,102,0.06); border: 1px solid rgba(0,255,102,0.25); padding: 4px 8px; border-radius: 6px; text-align: center; display: none; word-break: break-all; }
+        .btn-quick-record { flex: 2; background: #ff8800; color: #000; font-weight: bold; font-size: 11px; padding: 5px; border: none; border-radius: 6px; cursor: pointer; }
+        .btn-quick-clear { flex: 1; background: #444; color: #ccc; font-weight: bold; font-size: 11px; padding: 5px; border: none; border-radius: 6px; cursor: pointer; }
+        .pinned-kp-display { width: 100%; font-size: 10px; color: #00ff66; background: rgba(0,255,102,0.06); border: 1px solid rgba(0,255,102,0.25); padding: 3px 6px; border-radius: 6px; text-align: center; display: none; word-break: break-all; }
         
-        .next-facility-box { background: rgba(30,30,30,0.85); border: 1px solid #444; border-radius: 8px; padding: 8px 16px; margin-top: 6px; width: 90%; max-width: 360px; display: flex; justify-content: space-between; align-items: center; transition: all 0.3s; }
-        .next-fac-label { font-size: 12px; color: #aaa; text-align: left; }
-        .next-fac-name { font-size: 16px; font-weight: bold; color: #fff; }
-        .next-fac-dist { font-size: 20px; font-weight: 900; color: #00ff66; text-align: right; }
+        .next-facility-box { background: rgba(30,30,30,0.85); border: 1px solid #444; border-radius: 8px; padding: 6px 14px; margin-top: 4px; width: 90%; max-width: 360px; display: flex; justify-content: space-between; align-items: center; transition: all 0.3s; }
+        .next-fac-label { font-size: 11px; color: #aaa; text-align: left; }
+        .next-fac-name { font-size: 15px; font-weight: bold; color: #fff; }
+        .next-fac-dist { font-size: 18px; font-weight: 900; color: #00ff66; text-align: right; }
 
-        #shuto-warning-banner { display: none; width: 90%; max-width: 360px; background: #ff0000; color: #fff; border: 3px solid #ffcc00; border-radius: 10px; padding: 10px; margin-top: 10px; text-align: center; animation: pulse-warn 1s infinite alternate; }
-        .warn-title { font-size: 22px; font-weight: 900; letter-spacing: 2px; text-shadow: 2px 2px 4px rgba(0,0,0,0.5); }
+        #shuto-warning-banner { display: none; width: 90%; max-width: 360px; background: #ff0000; color: #fff; border: 3px solid #ffcc00; border-radius: 10px; padding: 8px; margin-top: 6px; text-align: center; animation: pulse-warn 1s infinite alternate; }
+        .warn-title { font-size: 20px; font-weight: 900; letter-spacing: 2px; text-shadow: 2px 2px 4px rgba(0,0,0,0.5); }
 
         @keyframes pulse-warn { from { transform: scale(1); opacity: 0.9; } to { transform: scale(1.02); opacity: 1; } }
 
-        .auto-badge { font-size: 11px; background: #004444; color: #00ffff; padding: 2px 8px; border-radius: 4px; margin-top: 4px; display: inline-block; }
+        .auto-badge { font-size: 10px; background: #004444; color: #00ffff; padding: 2px 8px; border-radius: 4px; margin-top: 3px; display: inline-block; }
 
-        footer { background: rgba(15,15,15,0.9); padding: 8px 15px; font-size: 11px; color: #888; border-top: 1px solid #222; text-align: center; line-height: 1.4; }
+        footer { background: rgba(15,15,15,0.9); padding: 6px 15px; font-size: 10px; color: #888; border-top: 1px solid #222; text-align: center; line-height: 1.3; }
         .status-ok { color: #00ff66; font-weight: bold; }
         .status-warn { color: #ffaa00; font-weight: bold; }
 
@@ -284,12 +277,12 @@
             <h2>Network for Expressway Coordinate & Observation</h2>
             
             <div class="disclaimer-box">
-                <b>【利用上のご注意（テスト運用中）】</b><br>
-                当システムは現在テスト運用中です。位置情報や動作ログ等は一切保存・収集していません。<br>
-                登録された危険箇所データは全てのログイン者に共有されますので、機密情報等の入力には十分ご注意ください。
+                <b>[利用上のご注意]</b>
+                個人情報保護、秘匿情報の流出を防ぐ観点から、位置情報や動作ログなどは一切保存・収集は行っておりません。また、危険箇所画像ログには位置情報、撮影時刻が画像に保存され、コメントには時刻のみ保存されます。当アプリは情報の収集は一切行わず、当アプリで必要な情報はログイン者全員に公開されます。使用には十分注意をお願いします。<br>
+                また、上記の理由により、当アプリを使用した事により問題が発生した場合、一切の責任を負いません。
             </div>
 
-            <div class="manual-link" onclick="openManualModal()">?? システム説明書・プライバシー仕様はこちら</div>
+            <div class="manual-link" onclick="openManualModal()">[説明] システム説明書・プライバシー仕様はこちら</div>
 
             <input type="password" id="pass-input" placeholder="パスワードを入力">
             <button onclick="checkPassword()">Approve and log in</button>
@@ -302,13 +295,12 @@
     <!-- システム説明書モーダル -->
     <div id="manual-modal" style="display: none;">
         <div id="manual-modal-content">
-            <h3>?? N.E.C.O. システム説明書</h3>
+            <h3>[説明] N.E.C.O. システム説明書</h3>
             <div class="manual-body">
                 <div class="manual-section manual-section-alert">
-                    <h4>?? 危険箇所リストの絞り込み仕様</h4>
+                    <h4>[警報] アンカーポイント補間仕様（実測データ反映版）</h4>
                     <ul>
-                        <li><b>100m以内限定表示:</b> 「直近100m以内に危険情報あり」ボタンから開いた場合、現在地から±100m（±0.1kp）以内のデータのみを表示します。</li>
-                        <li><b>方向別フィルタ:</b> 現在選択している進行方向（上り/下り）に一致するデータのみを抽出し、逆車線の混入を防ぎます。</li>
+                        <li><b>実測ベース補正:</b> 現場の実測データ（下り30kpの座標など）および主要IC/JCTのアンカーポイントを基に、区間内を直線補間して高精度にKPを算出します。</li>
                     </ul>
                 </div>
             </div>
@@ -318,34 +310,11 @@
         </div>
     </div>
 
-    <!-- クラウド設定モーダル -->
-    <div id="settings-modal" style="display: none;">
-        <div id="settings-modal-content">
-            <h3 style="font-size: 15px; color: #ffcc00; margin-bottom: 10px; text-align: center;">?? クラウド接続設定</h3>
-            <div class="setting-field">
-                <label>Firebase プロジェクトID</label>
-                <input type="text" id="setting-project-id" placeholder="例: neco-expressway-app">
-            </div>
-            <div class="setting-field">
-                <label>APIキー</label>
-                <input type="password" id="setting-api-key" placeholder="AIzaSy...">
-            </div>
-            <div class="setting-field">
-                <label>アプリ共有パスワード変更</label>
-                <input type="password" id="setting-app-pwd" placeholder="変更する場合のみ入力">
-            </div>
-            <div class="modal-btn-row" style="margin-top: 12px;">
-                <button class="modal-btn btn-cancel" onclick="closeSettingsModal()">キャンセル</button>
-                <button class="modal-btn btn-add" onclick="saveSettings()">保存する</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- ?? 危険箇所リスト専用モーダル -->
+    <!-- 危険箇所リスト専用モーダル -->
     <div id="hazard-list-modal" style="display: none;">
         <div id="hazard-list-modal-content">
             <div class="hazard-page-header">
-                <div class="hazard-page-title" id="hazard-modal-title">?? 危険箇所画像ログ</div>
+                <div class="hazard-page-title" id="hazard-modal-title">[警告] 危険箇所画像ログ</div>
                 <div style="display: flex; gap: 4px;">
                     <button class="select-btn" id="btn-filter-all" onclick="setHazardFilter('ALL')" style="padding: 3px 6px; font-size: 10px;">全件</button>
                     <button class="select-btn active" id="btn-filter-near" onclick="setHazardFilter('NEAR')" style="padding: 3px 6px; font-size: 10px;">100m以内</button>
@@ -362,7 +331,7 @@
     <!-- カメラ撮影モーダル -->
     <div id="camera-modal" style="display: none;">
         <div id="camera-modal-content">
-            <h3 style="font-size: 15px; color: #ffcc00; margin-bottom: 4px;">?? 危険箇所撮影・登録</h3>
+            <h3 style="font-size: 15px; color: #ffcc00; margin-bottom: 4px;">[撮影] 危険箇所撮影・登録</h3>
             <p style="font-size: 10px; color: #aaa; margin-bottom: 6px;">自動でサムネイル圧縮して危険リストに登録します</p>
             
             <div class="camera-viewport">
@@ -381,15 +350,15 @@
 
             <div class="modal-btn-row">
                 <button class="modal-btn btn-cancel" onclick="closeCameraModal()">キャンセル</button>
-                <button class="modal-btn btn-capture" onclick="captureAndSaveHazard()">?? 危険リストに登録</button>
+                <button class="modal-btn btn-capture" onclick="captureAndSaveHazard()">[登録] 危険リストに登録</button>
             </div>
         </div>
     </div>
 
-    <!-- ?? テキストコメント専用モーダル -->
+    <!-- テキストコメント専用モーダル -->
     <div id="support-modal" style="display: none;">
         <div id="support-modal-content">
-            <h3>?? 共有コメントボード</h3>
+            <h3>[情報] 共有コメントボード</h3>
             <p style="font-size: 11px; color: #aaa; margin-bottom: 6px; text-align: left;">テキストのみの連絡事項・コメント一覧です。</p>
             
             <textarea id="support-text" placeholder="ここにコメントを入力..."></textarea>
@@ -422,19 +391,18 @@
         </div>
     </div>
 
-    <!-- ?? 右下に固定配置された撮影ボタン -->
+    <!-- 右下に固定配置された撮影ボタン -->
     <button class="floating-cam-btn" onclick="openCameraModal()">
-        ?? 撮影
+        [撮影] カメラ
     </button>
 
     <header>
         <div class="header-top-row">
             <div class="brand">Network for Expressway Coordinate & Observation</div>
-            <!-- 右上に配置された補助ボタン群 -->
+            <!-- 右上に配置された補助ボタン群（設定削除） -->
             <div class="top-right-controls">
-                <button class="top-right-btn btn-hazard-list" onclick="openHazardListModal('ALL')">?? 危険リスト</button>
-                <button class="top-right-btn btn-support" onclick="openSupportModal()">?? コメント</button>
-                <button class="top-right-btn btn-settings" onclick="openSettingsModal()">?? 設定</button>
+                <button class="top-right-btn btn-hazard-list" onclick="openHazardListModal('ALL')">[警告] 危険リスト</button>
+                <button class="top-right-btn btn-support" onclick="openSupportModal()">[情報] コメント</button>
             </div>
         </div>
         
@@ -454,7 +422,7 @@
 
         <div id="manual-panel">
             <span>シミュレートKP:</span>
-            <input type="number" id="manual-kp-input" value="3.15" step="0.05" oninput="applyManualKP()">
+            <input type="number" id="manual-kp-input" value="33.10" step="0.05" oninput="applyManualKP()">
             <button onclick="applyManualKP()">適用</button>
         </div>
     </header>
@@ -463,18 +431,19 @@
         <div class="route-name" id="route-text">東北自動車道 (上り)</div>
         <div id="current-zone" class="current-zone-display" style="display: none;">区間外</div>
         
+        <!-- キロポスト表示 -->
         <div>
             <span class="kp-display" id="kp-val">--.--</span><span class="kp-unit" id="kp-unit-label">kp</span>
         </div>
 
-        <!-- ?? 危険情報検知時の点滅ボタン（100m以内） -->
+        <!-- 危険情報検知時の点滅ボタン（100m以内） -->
         <button id="hazard-blink-btn" class="hazard-blink-btn" onclick="openHazardListModal('NEAR')">
-            ?? 直近100m以内に危険情報あり！（確認する）
+            [警報] 直近100m以内に危険情報あり！（確認する）
         </button>
 
         <div class="quick-action-area">
             <div class="quick-btn-row">
-                <button class="btn-quick-record" onclick="pinCurrentKp()">?? 現在KPを記録</button>
+                <button class="btn-quick-record" onclick="pinCurrentKp()">[記録] 現在KPを記録</button>
                 <button class="btn-quick-clear" onclick="clearPinnedKp()">消去</button>
             </div>
             <div id="pinned-kp-display" class="pinned-kp-display">記録なし</div>
@@ -492,8 +461,8 @@
         </div>
 
         <div id="shuto-warning-banner">
-            <div class="warn-title" id="warn-title-text">?? 首都高注意！ ??</div>
-            <div style="font-size: 13px; font-weight: bold; margin-top: 2px;" id="warn-sub-text">まもなく川口JCT（首都高境界）です</div>
+            <div class="warn-title" id="warn-title-text">[警告] 首都高注意！</div>
+            <div style="font-size: 12px; font-weight: bold; margin-top: 2px;" id="warn-sub-text">まもなく川口JCT（首都高境界）です</div>
         </div>
 
         <div id="auto-status-badge" class="auto-badge">自動判定モード稼働中</div>
@@ -506,7 +475,7 @@
     </footer>
 
     <script>
-        function getAppPassword() { return localStorage.getItem('neco_app_pwd') || "nexcokp"; }
+        function getAppPassword() { return "nexcokp"; }
 
         let deleteTargetType = null;
         let deleteTargetIndex = null;
@@ -530,29 +499,6 @@
 
         function openManualModal() { document.getElementById('manual-modal').style.display = 'flex'; }
         function closeManualModal() { document.getElementById('manual-modal').style.display = 'none'; }
-
-        function openSettingsModal() {
-            document.getElementById('setting-project-id').value = localStorage.getItem('neco_project_id') || '';
-            document.getElementById('setting-api-key').value = localStorage.getItem('neco_api_key') || '';
-            document.getElementById('setting-app-pwd').value = '';
-            document.getElementById('settings-modal').style.display = 'flex';
-        }
-        function closeSettingsModal() { document.getElementById('settings-modal').style.display = 'none'; }
-        
-        function saveSettings() {
-            const pId = document.getElementById('setting-project-id').value.trim();
-            const aKey = document.getElementById('setting-api-key').value.trim();
-            const newPwd = document.getElementById('setting-app-pwd').value.trim();
-
-            localStorage.setItem('neco_project_id', pId);
-            localStorage.setItem('neco_api_key', aKey);
-            if (newPwd) {
-                localStorage.setItem('neco_app_pwd', newPwd);
-                alert("パスワードを変更しました。");
-            }
-            alert("クラウド接続設定を保存しました！");
-            closeSettingsModal();
-        }
 
         function openCameraModal() {
             document.getElementById('camera-modal').style.display = 'flex';
@@ -648,7 +594,7 @@
             hazards.unshift({
                 date: dateStr,
                 route: routeText,
-                direction: currentDirection, // 方向を保存
+                direction: currentDirection,
                 kp: currentKpVal,
                 text: memoText,
                 image: compressedDataUrl
@@ -690,25 +636,21 @@
             const hazards = getStoredHazards();
             const currentKp = parseFloat(document.getElementById('kp-val').innerText) || 0.0;
             const titleEl = document.getElementById('hazard-modal-title');
+            const dirLabel = (currentDirection === 'UP' ? '上り' : '下り');
 
-            // 1. 現在の進行方向（上り/下り）に合致するデータのみに絞り込む（未定義の古いデータは許容）
-            let filteredHazards = hazards.filter(h => {
-                if (!h.direction) return true; 
-                return h.direction === currentDirection;
-            });
+            let filteredHazards = hazards.filter(h => h.direction === currentDirection);
 
-            // 2. モードに応じた絞り込み（NEARの場合は±100m以内）
             if (hazardFilterMode === 'NEAR') {
                 filteredHazards = filteredHazards.filter(h => Math.abs(h.kp - currentKp) <= 0.1);
-                titleEl.innerText = `?? 直近100m以内の危険ログ (${currentDirection === 'UP' ? '上り' : '下り'})`;
+                titleEl.innerText = `[警告] 直近100m以内の危険ログ (${dirLabel})`;
             } else {
-                titleEl.innerText = `?? 危険箇所画像ログ (${currentDirection === 'UP' ? '上り' : '下り'})`;
+                titleEl.innerText = `[警告] 危険箇所画像ログ (${dirLabel})`;
             }
 
             if (filteredHazards.length === 0) {
                 container.innerHTML = `
                     <div style="font-size: 12px; color: #888; text-align: center; padding: 25px;">
-                        ${hazardFilterMode === 'NEAR' ? '直近100m以内に該当する危険箇所はありません' : '登録されている危険箇所画像はありません'}
+                        ${hazardFilterMode === 'NEAR' ? `直近100m以内（${dirLabel}）に該当する危険箇所はありません` : `登録されている危険箇所画像（${dirLabel}）はありません`}
                     </div>`;
                 return;
             }
@@ -737,15 +679,13 @@
             const hazards = getStoredHazards();
             const blinkBtn = document.getElementById('hazard-blink-btn');
             
-            // 進行方向も一致するものに限定してカウント
             let nearby = hazards.filter(h => {
-                const matchDir = (!h.direction || h.direction === currentDirection);
-                return matchDir && Math.abs(h.kp - currentKp) <= 0.1;
+                return (h.direction === currentDirection) && Math.abs(h.kp - currentKp) <= 0.1;
             });
 
             if (nearby.length > 0) {
                 blinkBtn.style.display = 'inline-block';
-                blinkBtn.innerText = `?? 直近100m以内に危険情報あり (${nearby.length}件)！`;
+                blinkBtn.innerText = `[警報] 直近100m以内に危険情報あり (${nearby.length}件)！`;
             } else {
                 blinkBtn.style.display = 'none';
             }
@@ -866,7 +806,7 @@
             const pinnedData = localStorage.getItem('neco_pinned_kp');
             const displayEl = document.getElementById('pinned-kp-display');
             if (pinnedData) {
-                displayEl.innerText = `?? 記録: ${pinnedData}`;
+                displayEl.innerText = `[記録] ${pinnedData}`;
                 displayEl.style.display = 'block';
             } else {
                 displayEl.style.display = 'none';
@@ -877,7 +817,7 @@
             const comments = getStoredComments();
             if (comments.length === 0) { alert("コピーするデータがありません。"); return; }
 
-            let textToCopy = "【Axis Line Operations - 共有コメントボード】\n\n";
+            let textToCopy = "[Axis Line Operations - 共有コメントボード]\n\n";
             const totalCount = comments.length;
             comments.forEach((c, idx) => {
                 const displayNum = totalCount - idx;
@@ -931,6 +871,14 @@
             ]
         };
 
+        const tohokuAnchors = [
+            { lat: 35.8050, kp: 0.0 },
+            { lat: 35.8650, kp: 4.8 },
+            { lat: 36.05559, kp: 30.0 },
+            { lat: 36.1770, kp: 33.1 },
+            { lat: 36.3100, kp: 55.4 }
+        ];
+
         function manualSelectRoute(route) {
             userOverrodeRoute = true;
             setRoute(route);
@@ -949,6 +897,14 @@
             document.getElementById('btn-up').classList.toggle('active', dir === 'UP');
             document.getElementById('btn-down').classList.toggle('active', dir === 'DOWN');
             updateRouteText();
+            
+            if (document.getElementById('hazard-list-modal').style.display === 'flex') {
+                renderSortedHazardList();
+            }
+
+            const currentKp = parseFloat(document.getElementById('kp-val').innerText) || 0.0;
+            checkHazardProximity(currentKp, currentRoute);
+
             if (operationMode === 'MANUAL_PC') applyManualKP();
         }
 
@@ -1043,22 +999,21 @@
                 nameEl.innerText = `${nextFac.name} (${nextFac.type})`;
                 distEl.innerText = `あと ${dist.toFixed(2)} km`;
 
-                // ?? 警告条件の判定
                 if (nextFac.name === "川口JCT" && currentRoute === 'TOHOKU' && currentDirection === 'UP') {
                     warningBanner.style.display = 'block';
-                    warnTitleText.innerText = "?? 首都高注意！ ??";
+                    warnTitleText.innerText = "[警告] 首都高注意！";
                     warnSubText.innerText = "まもなく川口JCT（首都高境界）です";
                     nextBox.style.borderColor = '#ff0000';
                     bodyEl.classList.add('shuto-alert-mode');
                 } else if (currentRoute === 'TOHOKU' && currentDirection === 'DOWN' && currentKp >= 50.8 && currentKp <= 55.4) {
                     warningBanner.style.display = 'block';
-                    warnTitleText.innerText = "?? 宇都宮注意！ ??";
+                    warnTitleText.innerText = "[警告] 宇都宮注意！";
                     warnSubText.innerText = "まもなく佐野藤岡IC（宇都宮境界です）";
                     nextBox.style.borderColor = '#ff0000';
                     bodyEl.classList.add('shuto-alert-mode');
-                } else if (currentRoute === 'TOHOKU' && currentKp > 61.5 && currentKp <= 66.7) {
+                } else if (currentRoute === 'TOHOKU' && currentDirection === 'DOWN' && currentKp > 61.5 && currentKp <= 66.7) {
                     warningBanner.style.display = 'block';
-                    warnTitleText.innerText = "?? 工事プレート注意！ ??";
+                    warnTitleText.innerText = "[警告] 工事プレート注意！";
                     warnSubText.innerText = "栃木IC反転して下さい。";
                     nextBox.style.borderColor = '#ff0000';
                     bodyEl.classList.add('shuto-alert-mode');
@@ -1100,8 +1055,34 @@
 
             let estimatedKp = 0.0;
             if (currentRoute === 'TOHOKU') {
-                const baseLat = 35.8050;
-                estimatedKp = (lat - baseLat) * 111.13 + 2.93;
+                let lowerAnchor = tohokuAnchors[0];
+                let upperAnchor = tohokuAnchors[tohokuAnchors.length - 1];
+
+                for (let i = 0; i < tohokuAnchors.length - 1; i++) {
+                    if (lat >= tohokuAnchors[i].lat && lat <= tohokuAnchors[i+1].lat) {
+                        lowerAnchor = tohokuAnchors[i];
+                        upperAnchor = tohokuAnchors[i+1];
+                        break;
+                    }
+                }
+                if (lat < tohokuAnchors[0].lat) {
+                    lowerAnchor = tohokuAnchors[0];
+                    upperAnchor = tohokuAnchors[1];
+                }
+                if (lat > tohokuAnchors[tohokuAnchors.length-1].lat) {
+                    lowerAnchor = tohokuAnchors[tohokuAnchors.length-2];
+                    upperAnchor = tohokuAnchors[tohokuAnchors.length-1];
+                }
+
+                const latDiff = upperAnchor.lat - lowerAnchor.lat;
+                const kpDiff = upperAnchor.kp - lowerAnchor.kp;
+                
+                if (latDiff !== 0) {
+                    const ratio = (lat - lowerAnchor.lat) / latDiff;
+                    estimatedKp = lowerAnchor.kp + (kpDiff * ratio);
+                } else {
+                    estimatedKp = lowerAnchor.kp + (lat - lowerAnchor.lat) * 111.13;
+                }
             } else {
                 const kenohBaseLat = 36.0020;
                 estimatedKp = (lat - kenohBaseLat) * 111.13 + 45.0;
