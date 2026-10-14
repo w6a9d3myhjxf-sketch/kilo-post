@@ -2,31 +2,26 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Network for Expressway Coordinate & Observation</title>
-    <!-- PWA用設定 -->
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>N.E.C.O. - 統合型マスターデータロガー ＆ 構造物ビルダー</title>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body {
-            background-color: #000;
+            background-color: #0b0f19;
             color: #fff;
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            height: 100vh;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            overflow: hidden;
-            transition: background-color 0.3s;
+            padding: 10px;
+            max-width: 600px;
+            margin: 0 auto;
+            padding-bottom: 50px;
         }
-        body.shuto-alert-mode { background-color: #330000; }
 
-        /* 各種モーダルオーバーレイ */
-        #auth-overlay, #support-modal, #manual-modal, #camera-modal, #hazard-alert-modal, #hazard-list-modal {
+        /* パスワード認証オーバーレイ */
+        #auth-overlay, #pwd-modal {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.92);
+            background: rgba(11, 15, 25, 0.95);
             display: flex;
             flex-direction: column;
             justify-content: center;
@@ -35,238 +30,237 @@
             padding: 15px;
         }
         .auth-card {
-            background: #181818;
-            border: 1px solid #444;
+            background: #151c2f;
+            border: 1px solid #2a3a5e;
             border-radius: 10px;
             padding: 20px 18px;
             width: 90%;
-            max-width: 400px;
+            max-width: 380px;
             text-align: center;
             box-shadow: 0 4px 20px rgba(0,0,0,0.6);
         }
         .auth-card h2 {
-            font-size: 13px; color: #00ffff; margin-bottom: 10px; letter-spacing: 1px; line-height: 1.4;
+            font-size: 13px; color: #00ffff; margin-bottom: 12px; letter-spacing: 1px; line-height: 1.4;
         }
-        .disclaimer-box {
-            background: rgba(255, 68, 68, 0.08); border: 1px dashed rgba(255, 68, 68, 0.4);
-            border-radius: 6px; padding: 10px; font-size: 11px; color: #ff9999; text-align: left; line-height: 1.5; margin-bottom: 10px;
+        .auth-card input {
+            padding: 10px; font-size: 16px; border-radius: 6px; border: 1px solid #475569; background: #0f172a; color: #fff; width: 100%; text-align: center; margin-bottom: 10px; letter-spacing: 2px;
         }
-        .disclaimer-box b { color: #ffcc00; display: block; margin-bottom: 4px; }
-        .manual-link { font-size: 11px; color: #00ffff; text-decoration: underline; cursor: pointer; display: inline-block; margin-bottom: 12px; }
-
-        .auth-copyright, .app-copyright { font-size: 10px; color: #777; letter-spacing: 0.5px; }
-        .auth-copyright { margin-top: 12px; border-top: 1px solid #333; padding-top: 8px; }
-        .app-copyright { margin-top: 4px; border-top: 1px solid #222; padding-top: 4px; }
-
-        #auth-overlay input {
-            padding: 10px; font-size: 16px; border-radius: 6px; border: 1px solid #444; background: #111; color: #fff; width: 100%; text-align: center; margin-bottom: 10px; letter-spacing: 2px;
+        .auth-card button, .modal-btn {
+            padding: 10px; font-size: 15px; font-weight: bold; background: #facc15; color: #000; border: none; border-radius: 6px; cursor: pointer; width: 100%;
         }
-        #auth-overlay button {
-            padding: 10px; font-size: 15px; font-weight: bold; background: #ffcc00; color: #000; border: none; border-radius: 6px; cursor: pointer; width: 100%;
-        }
-        #auth-error { color: #ff4444; font-size: 13px; margin-top: 8px; display: none; }
+        .modal-btn-row { display: flex; gap: 8px; margin-top: 10px; }
+        .btn-cancel { background: #334155; color: #cbd5e1; }
+        .btn-confirm { background: #991b1b; color: #fecaca; }
 
-        /* システム説明書モーダル */
-        #manual-modal-content {
-            background: #1e1e1e; border: 1px solid #00ffff; border-radius: 10px; padding: 18px; width: 95%; max-width: 420px; text-align: left; max-height: 85vh; display: flex; flex-direction: column; box-shadow: 0 0 20px rgba(0,255,255,0.2);
-        }
-        #manual-modal-content h3 { font-size: 15px; color: #00ffff; border-bottom: 1px solid #333; padding-bottom: 6px; margin-bottom: 10px; text-align: center; }
-        .manual-body { flex: 1; overflow-y: auto; font-size: 11px; line-height: 1.6; color: #ddd; padding-right: 4px; }
-        .manual-section { margin-bottom: 12px; background: rgba(255,255,255,0.03); border-left: 3px solid #00ffff; padding: 8px 10px; border-radius: 0 4px 4px 0; }
-        .manual-section-alert { border-left-color: #00ff66; background: rgba(0, 255, 102, 0.05); }
+        #auth-error, #pwd-error { color: #f87171; font-size: 13px; margin-top: 8px; display: none; }
+        .auth-copyright { font-size: 10px; color: #64748b; margin-top: 12px; border-top: 1px solid #1e293b; padding-top: 8px; }
 
-        /* カメラ撮影モーダル */
-        #camera-modal-content { background: #151515; border: 1px solid #ff8800; border-radius: 10px; padding: 12px; width: 95%; max-width: 400px; text-align: center; max-height: 95vh; display: flex; flex-direction: column; align-items: center; }
-        .camera-viewport { position: relative; width: 100%; height: 320px; background: #000; border-radius: 6px; overflow: hidden; display: flex; justify-content: center; align-items: center; margin-bottom: 8px; }
-        #camera-video, #camera-canvas { width: 100%; height: 100%; object-fit: cover; }
-        .camera-overlay-info { position: absolute; bottom: 10px; left: 10px; right: 10px; background: rgba(0, 0, 0, 0.7); border: 1px solid rgba(255, 204, 0, 0.6); border-radius: 6px; padding: 6px 10px; text-align: left; font-size: 12px; color: #ffcc00; backdrop-filter: blur(2px); pointer-events: none; }
-        .cam-info-line { display: flex; justify-content: space-between; font-weight: bold; }
-        .cam-info-sub { font-size: 10px; color: #00ff66; margin-top: 2px; }
-        .memo-input-on-cam { width: 100%; padding: 6px; background: #111; color: #fff; border: 1px solid #555; border-radius: 4px; font-size: 13px; margin-bottom: 8px; text-align: left; }
-
-        /* 危険箇所リスト専用モーダル */
-        #hazard-list-modal-content {
-            background: #181212;
-            border: 2px solid #ff4444;
+        header {
+            background: #151c2f;
+            border: 1px solid #2a3a5e;
             border-radius: 10px;
-            padding: 14px;
-            width: 98%;
-            max-width: 450px;
-            height: 88vh;
-            display: flex;
-            flex-direction: column;
-            box-shadow: 0 0 30px rgba(255, 68, 68, 0.3);
+            padding: 12px;
+            margin-bottom: 12px;
+            text-align: center;
         }
-        .hazard-page-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 1px solid #442222;
-            padding-bottom: 8px;
+        h1 { font-size: 14px; color: #00ffff; margin-bottom: 4px; letter-spacing: 1px; }
+        .sub-info { font-size: 11px; color: #8ab4f8; }
+
+        /* メインのモード切替タブ */
+        .mode-tabs {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
             margin-bottom: 10px;
         }
-        .hazard-page-title { font-size: 14px; font-weight: bold; color: #ff4444; letter-spacing: 1px; }
-        .hazard-card-container {
-            flex: 1;
-            overflow-y: auto;
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 10px;
-            padding-right: 4px;
+        .mode-tab {
+            padding: 10px;
+            font-size: 12px;
+            font-weight: bold;
+            background: #1e293b;
+            color: #94a3b8;
+            border: 1px solid #334155;
+            border-radius: 6px;
+            cursor: pointer;
+            text-align: center;
         }
-        .hazard-card {
-            background: #251818;
-            border: 1px solid #552222;
+        .mode-tab.active {
+            background: #0284c7;
+            color: #fff;
+            border-color: #38bdf8;
+        }
+
+        /* レイヤー選択タブ（5つ） */
+        .layer-tabs {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 6px;
+            margin-bottom: 8px;
+        }
+        .layer-tab {
+            padding: 8px 4px;
+            font-size: 11px;
+            font-weight: bold;
+            background: #1e293b;
+            color: #94a3b8;
+            border: 1px solid #334155;
+            border-radius: 6px;
+            cursor: pointer;
+            text-align: center;
+        }
+        .layer-tab.active {
+            background: #0d9488;
+            color: #fff;
+            border-color: #2dd4bf;
+        }
+        .layer-tab:nth-child(4), .layer-tab:nth-child(5) {
+            grid-column: span 1.5;
+        }
+
+        .control-panel {
+            background: #151c2f;
+            border: 1px solid #2a3a5e;
             border-radius: 8px;
             padding: 10px;
-            position: relative;
+            margin-bottom: 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
         }
-        .hazard-card-header {
+        .row-group { display: flex; gap: 6px; align-items: center; justify-content: space-between; }
+        .row-group label { font-size: 12px; color: #cbd5e1; }
+        .row-group input {
+            background: #0f172a; border: 1px solid #475569; color: #fff; padding: 6px; border-radius: 4px; font-size: 13px; text-align: center;
+        }
+        .btn-jump { background: #0d9488; color: #fff; border: none; padding: 6px 12px; font-weight: bold; border-radius: 4px; cursor: pointer; font-size: 12px; }
+        .btn-auto-detect { background: #7c3aed; color: #fff; border: none; padding: 8px; font-weight: bold; border-radius: 6px; cursor: pointer; width: 100%; font-size: 12px; }
+
+        .content-area {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            max-height: 50vh;
+            overflow-y: auto;
+            padding-right: 4px;
+            margin-bottom: 12px;
+        }
+        .kp-card {
+            background: #151c2f;
+            border: 1px solid #334155;
+            border-radius: 8px;
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+        .kp-top-row { display: flex; justify-content: space-between; align-items: center; }
+        .kp-info { display: flex; flex-direction: column; gap: 2px; }
+        .kp-title { font-size: 15px; font-weight: 900; color: #facc15; }
+        .kp-status-text { font-size: 10px; color: #94a3b8; }
+        
+        .kp-actions { display: flex; gap: 6px; align-items: center; }
+        
+        .btn-measure {
+            width: 42px; height: 42px;
+            border-radius: 50%;
+            font-weight: bold;
+            font-size: 11px;
+            border: 2px solid rgba(255,255,255,0.2);
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+        }
+        .m-step-1 { background: #dc2626; color: #fff; }
+        .m-step-2 { background: #ca8a04; color: #fff; }
+        .m-step-3 { background: #2563eb; color: #fff; }
+        .m-done { background: #16a34a; color: #fff; }
+
+        .btn-undo-single {
+            background: #334155; color: #f87171; border: none; padding: 5px 8px; border-radius: 4px; font-size: 10px; cursor: pointer; font-weight: bold;
+        }
+
+        /* 座標確認・手入力用グリッド（折りたたみ式または常時表示） */
+        .manual-coord-box {
+            display: grid;
+            grid-template-columns: 1fr 1fr auto;
+            gap: 4px;
+            align-items: center;
+            background: #0f172a;
+            padding: 6px;
+            border-radius: 6px;
+            border: 1px solid #1e293b;
+        }
+        .manual-coord-box input {
+            background: #151c2f; border: 1px solid #475569; color: #fff; padding: 4px; border-radius: 4px; font-size: 11px; text-align: center;
+        }
+        .btn-manual-save {
+            background: #0d9488; color: #fff; border: none; padding: 5px 8px; border-radius: 4px; font-size: 11px; font-weight: bold; cursor: pointer;
+        }
+
+        /* 構造物登録フォームのスタイル */
+        .builder-form {
+            background: #151c2f;
+            border: 1px solid #2a3a5e;
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .builder-form h3 { font-size: 13px; color: #38bdf8; margin-bottom: 4px; }
+        .form-row { display: flex; flex-direction: column; gap: 3px; }
+        .form-row label { font-size: 11px; color: #94a3b8; font-weight: bold; }
+        .form-row input, .form-row select {
+            background: #0f172a; border: 1px solid #475569; color: #fff; padding: 8px; border-radius: 6px; font-size: 13px;
+        }
+        .struct-coord-row {
+            display: flex;
+            gap: 4px;
+            align-items: center;
+            background: #0f172a;
+            padding: 4px;
+            border-radius: 4px;
+            margin-top: 2px;
+        }
+        .struct-coord-row span { font-size: 10px; color: #94a3b8; width: 75px; flex-shrink: 0; }
+        .struct-coord-row input {
+            background: #151c2f; border: 1px solid #475569; color: #fff; padding: 4px; border-radius: 4px; font-size: 11px; text-align: center; width: 100%;
+        }
+
+        .btn-save-struct {
+            background: #16a34a; color: #fff; border: none; padding: 10px; border-radius: 6px; font-size: 13px; font-weight: bold; cursor: pointer; margin-top: 6px;
+        }
+        .struct-card {
+            background: #151c2f;
+            border: 1px solid #334155;
+            border-radius: 8px;
+            padding: 10px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 6px;
         }
-        .hazard-kp-badge {
-            background: #ff0000;
-            color: #fff;
-            font-size: 13px;
-            font-weight: 900;
-            padding: 2px 8px;
-            border-radius: 4px;
-        }
-        .hazard-card-date { font-size: 10px; color: #aaa; }
-        .hazard-card-body { font-size: 12px; color: #fff; margin-bottom: 8px; line-height: 1.4; word-break: break-all; }
-        .hazard-card-img {
-            width: 100%;
-            height: 180px;
-            object-fit: cover;
-            border-radius: 6px;
-            border: 1px solid #663333;
-            cursor: pointer;
-        }
-        .hazard-card-del {
-            position: absolute;
-            bottom: 10px;
-            right: 10px;
-            background: rgba(0,0,0,0.7);
-            color: #ff6666;
-            border: 1px solid #ff4444;
-            padding: 3px 8px;
-            font-size: 10px;
-            border-radius: 4px;
-            cursor: pointer;
+        .struct-info { display: flex; flex-direction: column; gap: 2px; }
+        .struct-title { font-size: 14px; font-weight: 900; color: #facc15; }
+        .struct-status-text { font-size: 10px; color: #94a3b8; }
+        .btn-delete-struct {
+            background: #991b1b; color: #fecaca; border: none; padding: 5px 8px; border-radius: 4px; font-size: 10px; cursor: pointer;
         }
 
-        /* テキストコメント専用モーダル */
-        #support-modal-content {
-            background: #222; border: 1px solid #555; border-radius: 10px; padding: 15px; width: 95%; max-width: 400px; text-align: center; max-height: 90vh; display: flex; flex-direction: column;
+        .data-management {
+            background: #151c2f; border: 1px solid #2a3a5e; border-radius: 8px; padding: 10px; text-align: center;
         }
-        #support-modal-content h3 { font-size: 16px; color: #00ffff; margin-bottom: 8px; }
-        #support-text { width: 100%; height: 70px; background: #111; color: #fff; border: 1px solid #444; border-radius: 6px; padding: 8px; font-size: 14px; resize: none; margin-bottom: 8px; }
-        #comment-list-container { flex: 1; overflow-y: auto; max-height: 200px; background: #151515; border: 1px solid #333; border-radius: 6px; padding: 6px; margin-bottom: 10px; text-align: left; }
-        .comment-item { background: #252525; border-left: 3px solid #ffcc00; padding: 6px 8px; margin-bottom: 6px; border-radius: 4px; font-size: 12px; position: relative; }
-        .comment-header-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2px; padding-right: 15px; }
-        .comment-num { font-size: 11px; font-weight: bold; color: #ffcc00; }
-        .comment-date { font-size: 10px; color: #888; }
-        .comment-text { color: #fff; word-break: break-all; }
-        .comment-delete { position: absolute; top: 2px; right: 6px; background: none; border: none; color: #555; font-size: 16px; cursor: pointer; padding: 2px; }
-        .comment-delete:hover { color: #ff4444; }
+        .data-btn-row { display: flex; gap: 6px; margin-top: 6px; }
+        .btn-data { flex: 1; padding: 8px; font-size: 12px; font-weight: bold; border: none; border-radius: 6px; cursor: pointer; }
+        .btn-export { background: #2563eb; color: #fff; }
+        .btn-reset { background: #991b1b; color: #fecaca; }
 
-        .modal-btn-row { display: flex; justify-content: space-between; gap: 8px; width: 100%; }
-        .modal-btn { flex: 1; padding: 8px; font-size: 13px; font-weight: bold; border: none; border-radius: 6px; cursor: pointer; }
-        .btn-add { background: #00aa00; color: #fff; }
-        .btn-copy { background: #0088ff; color: #fff; }
-        .btn-cancel { background: #444; color: #ccc; }
-        .btn-capture { background: #ffcc00; color: #000; }
-
-        /* ヘッダーデザイン */
-        header { padding: 8px 10px; background: rgba(20,20,20,0.9); border-bottom: 1px solid #333; position: relative; }
-        .header-top-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
-        .brand { font-size: 10px; color: #00ffff; letter-spacing: 1px; font-weight: bold; text-align: center; width: 100%; }
-        
-        /* 右上の補助ボタン群 */
-        .top-right-controls { display: flex; gap: 4px; position: absolute; right: 10px; top: 8px; }
-        .top-right-btn { padding: 4px 7px; font-size: 10px; font-weight: bold; border-radius: 4px; cursor: pointer; border: 1px solid; }
-        .btn-hazard-list { background: #441111; color: #ff6666; border-color: #ff4444; }
-        .btn-support { background: #333; color: #ffcc00; border-color: #ffcc00; }
-
-        /* 中央配置の操作行 */
-        .control-row { display: flex; justify-content: center; gap: 6px; margin-top: 3px; }
-        .select-btn { padding: 6px 12px; font-size: 11px; font-weight: bold; border: 1px solid #555; background: #222; color: #aaa; border-radius: 6px; cursor: pointer; }
-        .select-btn.active { background: #00ffff; color: #000; border-color: #00ffff; }
-        .dir-btn.active { background: #ffcc00; color: #000; border-color: #ffcc00; }
-
-        /* 右下に固定配置する撮影ボタン */
-        .floating-cam-btn {
-            position: fixed;
-            bottom: 25px;
-            right: 45px;
-            background: #ff8800;
-            color: #000;
-            font-weight: 900;
-            font-size: 14px;
-            padding: 14px 22px;
-            border-radius: 30px;
-            border: 2px solid #ffcc00;
-            box-shadow: 0 4px 20px rgba(255, 136, 0, 0.4);
-            z-index: 990;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 6px;
+        .gps-status-bar {
+            font-size: 11px; padding: 6px; border-radius: 6px; background: #0f172a; margin-bottom: 10px; text-align: center; border: 1px solid #334155;
         }
-        .floating-cam-btn:active { transform: scale(0.95); }
-
-        /* 手動入力パネル */
-        #manual-panel { background: rgba(40,40,40,0.95); padding: 6px; margin-top: 6px; border-radius: 6px; display: none; justify-content: center; align-items: center; gap: 6px; font-size: 12px; }
-        #manual-panel input { width: 90px; padding: 4px 6px; background: #111; border: 1px solid #666; color: #ffcc00; font-size: 14px; font-weight: bold; text-align: center; border-radius: 4px; }
-        #manual-panel button { padding: 4px 10px; background: #ffcc00; border: none; font-weight: bold; border-radius: 4px; cursor: pointer; color: #000; }
-
-        /* メイン画面 */
-        main { flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; padding: 2px; position: relative; }
-        .route-name { font-size: 13px; color: #00ffff; margin-bottom: 1px; font-weight: bold; }
-        .current-zone-display { font-size: 14px; font-weight: bold; color: #00ff66; background: rgba(0, 255, 102, 0.1); border: 1px solid #00ff66; padding: 2px 10px; border-radius: 12px; margin-bottom: 2px; display: inline-block; }
-        
-        /* キロポスト表示（最大化） */
-        .kp-display { font-size: clamp(96px, 24vw, 148px); font-weight: 900; color: #ffcc00; text-shadow: 0 0 40px rgba(255,204,0,0.7); letter-spacing: -1px; margin: 0; line-height: 0.95; }
-        .kp-unit { font-size: clamp(32px, 8vw, 48px); margin-left: 2px; font-weight: bold; }
-
-        /* 周辺接近時（100m以内）の点滅アラートボタン */
-        .hazard-blink-btn {
-            display: none; background: #ff0000; color: #fff; border: 2px solid #ffcc00; font-size: 12px; font-weight: 900; padding: 5px 12px; border-radius: 20px; margin-top: 4px; cursor: pointer; animation: hazard-pulse 0.8s infinite alternate; box-shadow: 0 0 15px rgba(255, 0, 0, 0.6);
-        }
-        @keyframes hazard-pulse {
-            from { transform: scale(1); opacity: 0.85; background-color: #cc0000; }
-            to { transform: scale(1.06); opacity: 1; background-color: #ff0000; }
-        }
-
-        .quick-action-area { margin-top: 4px; display: flex; flex-direction: column; align-items: center; gap: 3px; width: 90%; max-width: 360px; }
-        .quick-btn-row { display: flex; gap: 8px; width: 100%; }
-        .btn-quick-record { flex: 2; background: #ff8800; color: #000; font-weight: bold; font-size: 11px; padding: 5px; border: none; border-radius: 6px; cursor: pointer; }
-        .btn-quick-clear { flex: 1; background: #444; color: #ccc; font-weight: bold; font-size: 11px; padding: 5px; border: none; border-radius: 6px; cursor: pointer; }
-        .pinned-kp-display { width: 100%; font-size: 10px; color: #00ff66; background: rgba(0,255,102,0.06); border: 1px solid rgba(0,255,102,0.25); padding: 3px 6px; border-radius: 6px; text-align: center; display: none; word-break: break-all; }
-        
-        .next-facility-box { background: rgba(30,30,30,0.85); border: 1px solid #444; border-radius: 8px; padding: 6px 14px; margin-top: 4px; width: 90%; max-width: 360px; display: flex; justify-content: space-between; align-items: center; transition: all 0.3s; }
-        .next-fac-label { font-size: 11px; color: #aaa; text-align: left; }
-        .next-fac-name { font-size: 15px; font-weight: bold; color: #fff; }
-        .next-fac-dist { font-size: 18px; font-weight: 900; color: #00ff66; text-align: right; }
-
-        #shuto-warning-banner { display: none; width: 90%; max-width: 360px; background: #ff0000; color: #fff; border: 3px solid #ffcc00; border-radius: 10px; padding: 8px; margin-top: 6px; text-align: center; animation: pulse-warn 1s infinite alternate; }
-        .warn-title { font-size: 20px; font-weight: 900; letter-spacing: 2px; text-shadow: 2px 2px 4px rgba(0,0,0,0.5); }
-
-        @keyframes pulse-warn { from { transform: scale(1); opacity: 0.9; } to { transform: scale(1.02); opacity: 1; } }
-
-        .auto-badge { font-size: 10px; background: #004444; color: #00ffff; padding: 2px 8px; border-radius: 4px; margin-top: 3px; display: inline-block; }
-
-        footer { background: rgba(15,15,15,0.9); padding: 6px 15px; font-size: 10px; color: #888; border-top: 1px solid #222; text-align: center; line-height: 1.3; }
-        .status-ok { color: #00ff66; font-weight: bold; }
-        .status-warn { color: #ffaa00; font-weight: bold; }
-
-        /* パスワード確認用 */
-        #pwd-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 10000; padding: 20px; }
-        #pwd-modal-content { background: #222; border: 1px solid #555; border-radius: 10px; padding: 20px; width: 90%; max-width: 300px; text-align: center; }
-        #pwd-modal-content input { padding: 10px; font-size: 18px; border-radius: 6px; border: 1px solid #444; background: #111; color: #fff; width: 100%; text-align: center; margin: 12px 0; letter-spacing: 3px; }
+        .status-ok { color: #4ade80; font-weight: bold; }
     </style>
 </head>
 <body>
@@ -274,209 +268,149 @@
     <!-- パスワード認証画面 -->
     <div id="auth-overlay">
         <div class="auth-card">
-            <h2>Network for Expressway Coordinate & Observation</h2>
-            
-            <div class="disclaimer-box">
-                <b>[利用上のご注意]</b>
-                個人情報保護、秘匿情報の流出を防ぐ観点から、位置情報や動作ログなどは一切保存・収集は行っておりません。また、危険箇所画像ログには位置情報、撮影時刻が画像に保存され、コメントには時刻のみ保存されます。当アプリは情報の収集は一切行わず、当アプリで必要な情報はログイン者全員に公開されます。使用には十分注意をお願いします。<br>
-                また、上記の理由により、当アプリを使用した事により問題が発生した場合、一切の責任を負いません。
-            </div>
-
-            <div class="manual-link" onclick="openManualModal()">[説明] システム説明書・プライバシー仕様はこちら</div>
-
+            <h2>N.E.C.O. 認証画面<br>統合データロガー</h2>
             <input type="password" id="pass-input" placeholder="パスワードを入力" onkeydown="if(event.key==='Enter') checkPassword()">
-            <button onclick="checkPassword()">Approve and log in</button>
+            <button onclick="checkPassword()">ログイン</button>
             <div id="auth-error">パスワードが違います</div>
-
-            <div class="auth-copyright">&copy; 2026 Axis Line Operations. All Rights Reserved.</div>
+            <div class="auth-copyright">&copy; 2026 Axis Line Operations</div>
         </div>
     </div>
 
-    <!-- システム説明書モーダル -->
-    <div id="manual-modal" style="display: none;">
-        <div id="manual-modal-content">
-            <h3>[説明] N.E.C.O. システム説明書</h3>
-            <div class="manual-body">
-                <div class="manual-section manual-section-alert">
-                    <h4>[警報] アンカーポイント補間仕様（実測データ反映版）</h4>
-                    <ul>
-                        <li><b>実測ベース補正:</b> 現場の実測データおよび主要IC/JCTのアンカーポイントを基に、区間内を直線補間して高精度にKPを算出します。</li>
-                    </ul>
-                </div>
-            </div>
-            <div style="margin-top: 10px;">
-                <button class="modal-btn btn-cancel" onclick="closeManualModal()" style="width: 100%;">閉じる</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- 危険箇所リスト専用モーダル -->
-    <div id="hazard-list-modal" style="display: none;">
-        <div id="hazard-list-modal-content">
-            <div class="hazard-page-header">
-                <div class="hazard-page-title" id="hazard-modal-title">[警告] 危険箇所画像ログ</div>
-                <div style="display: flex; gap: 4px;">
-                    <button class="select-btn" id="btn-filter-all" onclick="setHazardFilter('ALL')" style="padding: 3px 6px; font-size: 10px;">全件</button>
-                    <button class="select-btn active" id="btn-filter-near" onclick="setHazardFilter('NEAR')" style="padding: 3px 6px; font-size: 10px;">100m以内</button>
-                    <button class="modal-btn btn-cancel" style="padding: 3px 8px; font-size: 11px;" onclick="closeHazardListModal()">閉じる</button>
-                </div>
-            </div>
-            
-            <div class="hazard-card-container" id="hazard-cards-wrapper">
-                <!-- 動的に挿入 -->
-            </div>
-        </div>
-    </div>
-
-    <!-- カメラ撮影モーダル -->
-    <div id="camera-modal" style="display: none;">
-        <div id="camera-modal-content">
-            <h3 style="font-size: 15px; color: #ffcc00; margin-bottom: 4px;">[撮影] 危険箇所撮影・登録</h3>
-            <p style="font-size: 10px; color: #aaa; margin-bottom: 6px;">自動でサムネイル圧縮して危険リストに登録します</p>
-            
-            <div class="camera-viewport">
-                <video id="camera-video" autoplay playsinline muted></video>
-                <canvas id="camera-canvas" style="display: none;"></canvas>
-                <div class="camera-overlay-info">
-                    <div class="cam-info-line">
-                        <span id="cam-route-disp">東北自動車道 (上り)</span>
-                        <span id="cam-kp-disp" style="color: #ffcc00; font-size: 13px;">--.-- kp</span>
-                    </div>
-                    <div class="cam-info-sub" id="cam-time-disp">2026/0/0 00:00</div>
-                </div>
-            </div>
-
-            <input type="text" id="cam-memo-input" class="memo-input-on-cam" placeholder="危険箇所のメモ（例: 露出ケーブル発見）">
-
-            <div class="modal-btn-row">
-                <button class="modal-btn btn-cancel" onclick="closeCameraModal()">キャンセル</button>
-                <button class="modal-btn btn-capture" onclick="captureAndSaveHazard()">[登録] 危険リストに登録</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- テキストコメント専用モーダル -->
-    <div id="support-modal" style="display: none;">
-        <div id="support-modal-content">
-            <h3>[情報] 共有コメントボード</h3>
-            <p style="font-size: 11px; color: #aaa; margin-bottom: 6px; text-align: left;">テキストのみの連絡事項・コメント一覧です。</p>
-            
-            <textarea id="support-text" placeholder="ここにコメントを入力..."></textarea>
-            
-            <div class="modal-btn-row" style="margin-bottom: 8px;">
-                <button class="modal-btn btn-add" onclick="addTextComment()">コメントを追加</button>
-                <button class="modal-btn btn-copy" onclick="copyAllComments()">一括コピー</button>
-            </div>
-
-            <div id="comment-list-container">
-                <div style="font-size: 11px; color: #666; text-align: center; padding: 10px;">コメントはありません</div>
-            </div>
-
-            <div class="modal-btn-row" style="margin-top: 8px;">
-                <button class="modal-btn btn-cancel" onclick="closeSupportModal()">閉じる</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- 削除用パスワード確認モーダル -->
+    <!-- リセット確認モーダル -->
     <div id="pwd-modal" style="display: none;">
-        <div id="pwd-modal-content">
-            <h3 style="font-size: 15px; color: #ffcc00;">削除確認</h3>
-            <p style="font-size: 11px; color: #aaa; margin-top: 4px;">削除するにはパスワードを入力してください</p>
-            <input type="password" id="delete-pwd-input" placeholder="••••" onkeydown="if(event.key==='Enter') confirmDeleteTarget()">
+        <div class="auth-card">
+            <h2>全データリセット確認</h2>
+            <p style="font-size: 11px; color: #94a3b8; margin-bottom: 10px;">すべてのデータを削除するにはパスワードを入力してください</p>
+            <input type="password" id="reset-pwd-input" placeholder="••••" onkeydown="if(event.key==='Enter') confirmResetAllData()">
+            <div id="pwd-error">パスワードが違います</div>
             <div class="modal-btn-row">
-                <button class="modal-btn btn-cancel" onclick="closeDeletePwdModal()">キャンセル</button>
-                <button class="modal-btn btn-add" onclick="confirmDeleteTarget()">確認</button>
+                <button class="modal-btn btn-cancel" onclick="closeResetModal()">キャンセル</button>
+                <button class="modal-btn btn-confirm" onclick="confirmResetAllData()">削除を実行</button>
             </div>
         </div>
     </div>
-
-    <!-- 右下に固定配置された撮影ボタン -->
-    <button class="floating-cam-btn" onclick="openCameraModal()">
-        [撮影] カメラ
-    </button>
 
     <header>
-        <div class="header-top-row">
-            <div class="brand">Network for Expressway Coordinate & Observation</div>
-            <!-- 右上に配置された補助ボタン群 -->
-            <div class="top-right-controls">
-                <button class="top-right-btn btn-hazard-list" onclick="openHazardListModal('ALL')">[警告] 危険リスト</button>
-                <button class="top-right-btn btn-support" onclick="openSupportModal()">[情報] コメント</button>
-            </div>
-        </div>
-        
-        <!-- 中央に配置された路線・判定モード切替 -->
-        <div class="control-row">
-            <button id="btn-tohoku" class="select-btn active" onclick="manualSelectRoute('TOHOKU')">東北道</button>
-            <button id="btn-kenoh" class="select-btn" onclick="manualSelectRoute('KENOH')">圏央道</button>
-            <button id="btn-mode-auto" class="select-btn active" onclick="setMode('AUTO')" style="background:#00aa00; color:#fff; border-color:#00cc00;">自動判定</button>
-            <button id="btn-mode-manual" class="select-btn" onclick="setMode('MANUAL_PC')">手動(PC)</button>
-        </div>
-
-        <!-- 中央に配置された上り/下り切替 -->
-        <div class="control-row" style="margin-top: 4px;">
-            <button id="btn-up" class="select-btn dir-btn active" onclick="setDirection('UP')">UP (上り/内回り)</button>
-            <button id="btn-down" class="select-btn dir-btn" onclick="setDirection('DOWN')">DOWN (下り/外回り)</button>
-        </div>
-
-        <div id="manual-panel">
-            <span>シミュレートKP:</span>
-            <input type="number" id="manual-kp-input" value="33.10" step="0.05" oninput="applyManualKP()">
-            <button onclick="applyManualKP()">適用</button>
-        </div>
+        <h1>N.E.C.O. 統合データロガー</h1>
+        <div class="sub-info">0.0km - 55.0km (全KPスクロールリスト)</div>
     </header>
 
-    <main>
-        <div class="route-name" id="route-text">東北自動車道 (上り)</div>
-        <div id="current-zone" class="current-zone-display" style="display: none;">区間外</div>
-        
-        <!-- キロポスト表示 -->
-        <div>
-            <span class="kp-display" id="kp-val">--.--</span><span class="kp-unit" id="kp-unit-label">kp</span>
+    <div class="gps-status-bar" id="gps-status">
+        GPS 測位中... (精度: --m)
+    </div>
+
+    <!-- メインモード切替タブ -->
+    <div class="mode-tabs">
+        <div class="mode-tab active" onclick="switchAppMode('KP')">KP 記録ロガー (0-55km)</div>
+        <div class="mode-tab" onclick="switchAppMode('BUILDER')">構造物ビルダー</div>
+    </div>
+
+    <!-- 【モード1】KPリストパネル -->
+    <div id="panel-kp">
+        <div class="layer-tabs">
+            <div class="layer-tab active" onclick="setLayer('UP')">上り本線</div>
+            <div class="layer-tab" onclick="setLayer('DOWN')">下り本線</div>
+            <div class="layer-tab" onclick="setLayer('UP_SIDE')">上り側道</div>
+            <div class="layer-tab" onclick="setLayer('DOWN_SIDE')">下り側道</div>
+            <div class="layer-tab" onclick="setLayer('CENTER')">中央分離帯</div>
         </div>
 
-        <!-- 危険情報検知時の点滅ボタン（100m以内） -->
-        <button id="hazard-blink-btn" class="hazard-blink-btn" onclick="openHazardListModal('NEAR')">
-            [警報] 直近100m以内に危険情報あり！（確認する）
-        </button>
-
-        <div class="quick-action-area">
-            <div class="quick-btn-row">
-                <button class="btn-quick-record" onclick="pinCurrentKp()">[記録] 現在KPを記録</button>
-                <button class="btn-quick-clear" onclick="clearPinnedKp()">消去</button>
+        <div class="control-panel">
+            <button class="btn-auto-detect" onclick="jumpToCurrentGPS()">現在地のGPS付近にジャンプ</button>
+            <div class="row-group">
+                <label>指定KPへジャンプ:</label>
+                <div style="display:flex; gap:4px;">
+                    <input type="number" id="jump-kp-input" value="30.0" step="0.1" min="0" max="55" style="width: 80px;">
+                    <span style="font-size:12px; align-self:center;">kp</span>
+                    <button class="btn-jump" onclick="jumpToKp()">移動</button>
+                </div>
             </div>
-            <div id="pinned-kp-display" class="pinned-kp-display">記録なし</div>
         </div>
-        
-        <div class="next-facility-box" id="next-box">
-            <div>
-                <div class="next-fac-label">次の施設 (NEXT)</div>
-                <div class="next-fac-name" id="next-fac-name">読込中...</div>
+
+        <div class="content-area" id="kp-cards-container"></div>
+    </div>
+
+    <!-- 【モード2】構造物ビルダーパネル -->
+    <div id="panel-builder" style="display: none;">
+        <div class="builder-form">
+            <h3>インフラ構造物 新規登録 (手入力)</h3>
+            <div class="form-row">
+                <label>カテゴリ:</label>
+                <select id="struct-category" onchange="onCategoryChange()">
+                    <option value="防音壁">防音壁</option>
+                    <option value="OV">OV (跨道橋)</option>
+                    <option value="橋梁">橋梁</option>
+                    <option value="カルバート">カルバート</option>
+                    <option value="河川">河川</option>
+                    <option value="門型">門型</option>
+                </select>
             </div>
-            <div>
-                <div class="next-fac-label" style="text-align: right;">残り距離</div>
-                <div class="next-fac-dist" id="next-fac-dist">-- km</div>
+            <div class="form-row">
+                <label>名称 (自由入力):</label>
+                <input type="text" id="struct-name" placeholder="例: 新郷跨道橋 / 第1カルバート">
             </div>
+
+            <div id="attr-wall" class="form-row">
+                <label>防音壁の高さ:</label>
+                <select id="attr-wall-height">
+                    <option value="高">高い防音壁</option>
+                    <option value="低">低い防音壁</option>
+                </select>
+            </div>
+            <div id="attr-bridge" class="form-row" style="display:none;">
+                <label>中央分離帯開口部:</label>
+                <select id="attr-bridge-opening">
+                    <option value="無">無</option>
+                    <option value="有">有 (開口部あり)</option>
+                </select>
+                <label style="margin-top:4px;">上下線床板の隙間:</label>
+                <select id="attr-bridge-gap">
+                    <option value="無">無 (一体型)</option>
+                    <option value="有">有 (分離構造・風/落下注意)</option>
+                </select>
+            </div>
+
+            <div style="font-size: 11px; color: #38bdf8; margin-top: 4px; font-weight: bold;">位置情報リンク（緯度N・経度Eを手入力）</div>
+            
+            <div class="struct-coord-row">
+                <span>上り開始(北)</span>
+                <input type="number" id="in_up_start_lat" placeholder="緯度 (N)" step="0.00001">
+                <input type="number" id="in_up_start_lng" placeholder="経度 (E)" step="0.00001">
+            </div>
+            <div class="struct-coord-row">
+                <span>上り終了(南)</span>
+                <input type="number" id="in_up_end_lat" placeholder="緯度 (N)" step="0.00001">
+                <input type="number" id="in_up_end_lng" placeholder="経度 (E)" step="0.00001">
+            </div>
+            <div class="struct-coord-row">
+                <span>下り開始(南)</span>
+                <input type="number" id="in_down_start_lat" placeholder="緯度 (N)" step="0.00001">
+                <input type="number" id="in_down_start_lng" placeholder="経度 (E)" step="0.00001">
+            </div>
+            <div class="struct-coord-row">
+                <span>下り終了(北)</span>
+                <input type="number" id="in_down_end_lat" placeholder="緯度 (N)" step="0.00001">
+                <input type="number" id="in_down_end_lng" placeholder="経度 (E)" step="0.00001">
+            </div>
+
+            <button class="btn-save-struct" onclick="saveStructureManual()">構造物を保存する</button>
         </div>
 
-        <div id="shuto-warning-banner">
-            <div class="warn-title" id="warn-title-text">[警告] 首都高注意！</div>
-            <div style="font-size: 12px; font-weight: bold; margin-top: 2px;" id="warn-sub-text">まもなく川口JCT（首都高境界）です</div>
+        <div style="font-size: 12px; font-weight: bold; color: #cbd5e1; margin-bottom: 6px;">登録済み構造物一覧</div>
+        <div class="content-area" id="struct-cards-container"></div>
+    </div>
+
+    <!-- データ管理パネル -->
+    <div class="data-management">
+        <div style="font-size: 12px; font-weight: bold; color: #cbd5e1;" id="stats-text">データ件数: 0 件</div>
+        <div class="data-btn-row">
+            <button class="btn-data btn-export" onclick="exportDataJson()">統合データをJSON出力</button>
+            <button class="btn-data btn-reset" onclick="promptResetAllData()">全データリセット</button>
         </div>
-
-        <div id="auto-status-badge" class="auto-badge">自動判定モード稼働中</div>
-    </main>
-
-    <footer>
-        <div id="gps-status">Status: 待機中</div>
-        <div id="latlng-text">Lat/Lng: --,-- (Acc: --m)</div>
-        <div class="app-copyright">&copy; 2026 Axis Line Operations. All Rights Reserved.</div>
-    </footer>
+    </div>
 
     <script>
-        // パスワード文字列をそのまま平文で露出しなように符号化（難読化）した値
-        const OBFUSCATED_PASSWORD = "6e6578636f6b70"; // "nexcokp" の16進数表現
+        const OBFUSCATED_PASSWORD = "6e6578636f6b70"; // "nexcokp"
 
         function verifyPassword(input) {
             let encoded = "";
@@ -492,663 +426,376 @@
 
         function checkPassword() {
             const inputVal = document.getElementById("pass-input").value;
-
             if (verifyPassword(inputVal)) {
                 authenticated = true;
                 document.getElementById("auth-overlay").style.display = "none";
                 document.getElementById("auth-error").style.display = "none";
                 initSystem();
-                loadPinnedKp();
             } else {
                 document.getElementById("auth-error").style.display = "block";
             }
         }
 
-        let deleteTargetType = null;
-        let deleteTargetIndex = null;
-        let mediaStream = null;
-        let hazardFilterMode = 'ALL'; // 'ALL' or 'NEAR'
+        let currentMode = 'KP';
+        let currentLayer = 'UP';
+        let latestLat = 0;
+        let latestLng = 0;
+        let latestAccuracy = 0;
 
-        function formatKp(rawKp) {
-            return rawKp.toFixed(2);
-        }
-
-        function openManualModal() { document.getElementById('manual-modal').style.display = 'flex'; }
-        function closeManualModal() { document.getElementById('manual-modal').style.display = 'none'; }
-
-        function openCameraModal() {
-            document.getElementById('camera-modal').style.display = 'flex';
-            document.getElementById('cam-memo-input').value = '';
-            updateCameraOverlayInfo();
-
-            const constraints = {
-                video: { facingMode: { ideal: "environment" }, width: { ideal: 1280 }, height: { ideal: 720 } },
-                audio: false
-            };
-
-            navigator.mediaDevices.getUserMedia(constraints)
-                .then((stream) => {
-                    mediaStream = stream;
-                    document.getElementById('camera-video').srcObject = stream;
-                })
-                .catch((err) => {
-                    console.error("カメラ起動エラー:", err);
-                    alert("カメラを起動できませんでした。権限を確認してください。");
-                    closeCameraModal();
-                });
-        }
-
-        function closeCameraModal() {
-            if (mediaStream) {
-                mediaStream.getTracks().forEach(t => t.stop());
-                mediaStream = null;
-            }
-            document.getElementById('camera-modal').style.display = 'none';
-        }
-
-        function updateCameraOverlayInfo() {
-            if (document.getElementById('camera-modal').style.display === 'none') return;
-            const routeText = document.getElementById('route-text').innerText;
-            const currentKp = document.getElementById('kp-val').innerText;
-            const unitLabel = document.getElementById('kp-unit-label').innerText;
-            
-            const now = new Date();
-            const timeStr = `${now.getFullYear()}/${String(now.getMonth()+1).padStart(2,'0')}/${String(now.getDate()).padStart(2,'0')} ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
-
-            document.getElementById('cam-route-disp').innerText = routeText;
-            document.getElementById('cam-kp-disp').innerText = `${currentKp} ${unitLabel}`;
-            document.getElementById('cam-time-disp').innerText = timeStr;
-
-            setTimeout(updateCameraOverlayInfo, 1000);
-        }
-
-        function captureAndSaveHazard() {
-            const video = document.getElementById('camera-video');
-            const canvas = document.getElementById('camera-canvas');
-            if (!video.srcObject) return;
-
-            canvas.width = video.videoWidth || 1280;
-            canvas.height = video.videoHeight || 720;
-            const ctx = canvas.getContext('2d');
-            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-
-            const routeText = document.getElementById('route-text').innerText;
-            const currentKpVal = parseFloat(document.getElementById('kp-val').innerText) || 0.0;
-            const unitLabel = document.getElementById('kp-unit-label').innerText;
-            const memoText = document.getElementById('cam-memo-input').value.trim() || "露出ケーブル・障害物報告";
-            
-            const now = new Date();
-            const dateStr = `${now.getMonth()+1}/${now.getDate()} ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
-
-            const padding = 20;
-            const boxHeight = 90;
-            ctx.fillStyle = 'rgba(0, 0, 0, 0.65)';
-            ctx.fillRect(padding, canvas.height - boxHeight - padding, canvas.width - (padding * 2), boxHeight);
-            ctx.strokeStyle = 'rgba(255, 204, 0, 0.8)';
-            ctx.lineWidth = 3;
-            ctx.strokeRect(padding, canvas.height - boxHeight - padding, canvas.width - (padding * 2), boxHeight);
-
-            ctx.fillStyle = '#ffcc00';
-            ctx.font = 'bold 26px sans-serif';
-            ctx.fillText(`${routeText} : ${currentKpVal.toFixed(2)} ${unitLabel}`, padding + 20, canvas.height - boxHeight - padding + 35);
-
-            ctx.fillStyle = '#ffffff';
-            ctx.font = '20px sans-serif';
-            ctx.fillText(`${memoText} (${dateStr})`, padding + 20, canvas.height - boxHeight - padding + 70);
-
-            const thumbCanvas = document.createElement('canvas');
-            const tCtx = thumbCanvas.getContext('2d');
-            const thumbWidth = 320;
-            const thumbHeight = (canvas.height / canvas.width) * thumbWidth;
-            thumbCanvas.width = thumbWidth;
-            thumbCanvas.height = thumbHeight;
-            tCtx.drawImage(canvas, 0, 0, thumbWidth, thumbHeight);
-            
-            const compressedDataUrl = thumbCanvas.toDataURL('image/jpeg', 0.6);
-
-            const hazards = getStoredHazards();
-            hazards.unshift({
-                date: dateStr,
-                route: routeText,
-                direction: currentDirection,
-                kp: currentKpVal,
-                text: memoText,
-                image: compressedDataUrl
-            });
-            localStorage.setItem('neco_hazards', JSON.stringify(hazards));
-
-            alert("写真を圧縮し、危険箇所リストに登録しました！");
-            closeCameraModal();
-            checkHazardProximity(currentKpVal, routeText);
-            openHazardListModal('ALL');
-        }
-
-        function getStoredHazards() {
+        function getStoredData() {
             try {
-                const data = localStorage.getItem('neco_hazards');
-                return data ? JSON.parse(data) : [];
-            } catch(e) { return []; }
+                const masterDataStr = localStorage.getItem('neco_integrated_master_data');
+                if (masterDataStr) return JSON.parse(masterDataStr);
+
+                let kpLogs = {};
+                const oldTohoku = localStorage.getItem('neco_gps_logger_data');
+                if (oldTohoku) Object.assign(kpLogs, JSON.parse(oldTohoku));
+
+                const oldXingou = localStorage.getItem('neco_gps_logger_data_xingou');
+                if (oldXingou) Object.assign(kpLogs, JSON.parse(oldXingou));
+
+                let initialData = { kpLogs: kpLogs, structures: [] };
+                localStorage.setItem('neco_integrated_master_data', JSON.stringify(initialData));
+                return initialData;
+            } catch(e) {
+                return { kpLogs: {}, structures: [] };
+            }
         }
 
-        function openHazardListModal(mode = 'ALL') {
-            hazardFilterMode = mode;
-            document.getElementById('btn-filter-all').classList.toggle('active', mode === 'ALL');
-            document.getElementById('btn-filter-near').classList.toggle('active', mode === 'NEAR');
-            renderSortedHazardList();
-            document.getElementById('hazard-list-modal').style.display = 'flex';
+        function saveStoredData(data) {
+            localStorage.setItem('neco_integrated_master_data', JSON.stringify(data));
+            localStorage.setItem('neco_gps_logger_data', JSON.stringify(data.kpLogs));
+            updateStats();
         }
 
-        function setHazardFilter(mode) {
-            hazardFilterMode = mode;
-            document.getElementById('btn-filter-all').classList.toggle('active', mode === 'ALL');
-            document.getElementById('btn-filter-near').classList.toggle('active', mode === 'NEAR');
-            renderSortedHazardList();
-        }
+        function switchAppMode(mode) {
+            currentMode = mode;
+            document.querySelectorAll('.mode-tab').forEach(tab => tab.classList.remove('active'));
+            event.target.classList.add('active');
 
-        function closeHazardListModal() { document.getElementById('hazard-list-modal').style.display = 'none'; }
-
-        function renderSortedHazardList() {
-            const container = document.getElementById('hazard-cards-wrapper');
-            const hazards = getStoredHazards();
-            const currentKp = parseFloat(document.getElementById('kp-val').innerText) || 0.0;
-            const titleEl = document.getElementById('hazard-modal-title');
-            const dirLabel = (currentDirection === 'UP' ? '上り' : '下り');
-
-            let filteredHazards = hazards.filter(h => h.direction === currentDirection);
-
-            if (hazardFilterMode === 'NEAR') {
-                filteredHazards = filteredHazards.filter(h => Math.abs(h.kp - currentKp) <= 0.1);
-                titleEl.innerText = `[警告] 直近100m以内の危険ログ (${dirLabel})`;
+            if (mode === 'KP') {
+                document.getElementById('panel-kp').style.display = 'block';
+                document.getElementById('panel-builder').style.display = 'none';
+                renderKpList();
             } else {
-                titleEl.innerText = `[警告] 危険箇所画像ログ (${dirLabel})`;
+                document.getElementById('panel-kp').style.display = 'none';
+                document.getElementById('panel-builder').style.display = 'block';
+                renderStructList();
             }
-
-            if (filteredHazards.length === 0) {
-                container.innerHTML = `
-                    <div style="font-size: 12px; color: #888; text-align: center; padding: 25px;">
-                        ${hazardFilterMode === 'NEAR' ? `直近100m以内（${dirLabel}）に該当する危険箇所はありません` : `登録されている危険箇所画像（${dirLabel}）はありません`}
-                    </div>`;
-                return;
-            }
-
-            let sortedHazards = filteredHazards.map((h, originalIndex) => ({ ...h, originalIndex }));
-            sortedHazards.sort((a, b) => a.kp - b.kp);
-
-            let html = '';
-            sortedHazards.forEach((h) => {
-                html += `
-                    <div class="hazard-card">
-                        <div class="hazard-card-header">
-                            <span class="hazard-kp-badge">${h.route || '東北道'} KP: ${h.kp.toFixed(2)}</span>
-                            <span class="hazard-card-date">${h.date}</span>
-                        </div>
-                        <div class="hazard-card-body">${escapeHtml(h.text)}</div>
-                        <img src="${h.image}" class="hazard-card-img" onclick="window.open('${h.image}')">
-                        <button class="hazard-card-del" onclick="promptDelete('hazard', ${h.originalIndex})">削除</button>
-                    </div>
-                `;
-            });
-            container.innerHTML = html;
+            updateStats();
         }
 
-        function checkHazardProximity(currentKp, routeText) {
-            const hazards = getStoredHazards();
-            const blinkBtn = document.getElementById('hazard-blink-btn');
-            
-            let nearby = hazards.filter(h => {
-                return (h.direction === currentDirection) && Math.abs(h.kp - currentKp) <= 0.1;
-            });
-
-            if (nearby.length > 0) {
-                blinkBtn.style.display = 'inline-block';
-                blinkBtn.innerText = `[警報] 直近100m以内に危険情報あり (${nearby.length}件)！`;
-            } else {
-                blinkBtn.style.display = 'none';
-            }
-        }
-
-        function openSupportModal() {
-            document.getElementById('support-modal').style.display = 'flex';
-            renderComments();
-        }
-        function closeSupportModal() { document.getElementById('support-modal').style.display = 'none'; }
-
-        function getStoredComments() {
-            try {
-                const data = localStorage.getItem('neco_comments');
-                return data ? JSON.parse(data) : [];
-            } catch(e) { return []; }
-        }
-
-        function addTextComment() {
-            const textInput = document.getElementById('support-text');
-            const val = textInput.value.trim();
-            if (!val) { alert("コメントを入力してください。"); return; }
-
-            const currentKp = parseFloat(document.getElementById('kp-val').innerText) || 0.0;
-            const routeText = document.getElementById('route-text').innerText;
-            const comments = getStoredComments();
-            const now = new Date();
-            const dateStr = `${now.getMonth()+1}/${now.getDate()} ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
-            
-            comments.unshift({ date: dateStr, route: routeText, kp: currentKp, text: val });
-            localStorage.setItem('neco_comments', JSON.stringify(comments));
-            textInput.value = '';
-            renderComments();
-        }
-
-        function renderComments() {
-            const container = document.getElementById('comment-list-container');
-            const comments = getStoredComments();
-
-            if (comments.length === 0) {
-                container.innerHTML = `<div style="font-size: 11px; color: #666; text-align: center; padding: 10px;">コメントはありません</div>`;
-                return;
-            }
-
-            let html = '';
-            const totalCount = comments.length;
-            comments.forEach((c, idx) => {
-                const displayNum = totalCount - idx;
-                html += `
-                    <div class="comment-item">
-                        <div class="comment-header-row">
-                            <span class="comment-num">#${displayNum} [KP:${c.kp.toFixed(2)}]</span>
-                            <span class="comment-date">${c.date}</span>
-                        </div>
-                        <div class="comment-text">${escapeHtml(c.text)}</div>
-                        <button class="comment-delete" onclick="promptDelete('comment', ${idx})">·</button>
-                    </div>
-                `;
-            });
-            container.innerHTML = html;
-        }
-
-        function promptDelete(type, index) {
-            deleteTargetType = type;
-            deleteTargetIndex = index;
-            document.getElementById('delete-pwd-input').value = '';
-            document.getElementById('pwd-modal').style.display = 'flex';
-            document.getElementById('delete-pwd-input').focus();
-        }
-
-        function closeDeletePwdModal() {
-            document.getElementById('pwd-modal').style.display = 'none';
-            deleteTargetType = null;
-            deleteTargetIndex = null;
-        }
-
-        function confirmDeleteTarget() {
-            const entered = document.getElementById('delete-pwd-input').value;
-
-            if (verifyPassword(entered)) {
-                if (deleteTargetType === 'comment') {
-                    const comments = getStoredComments();
-                    comments.splice(deleteTargetIndex, 1);
-                    localStorage.setItem('neco_comments', JSON.stringify(comments));
-                    renderComments();
-                } else if (deleteTargetType === 'hazard') {
-                    const hazards = getStoredHazards();
-                    hazards.splice(deleteTargetIndex, 1);
-                    localStorage.setItem('neco_hazards', JSON.stringify(hazards));
-                    renderSortedHazardList();
-                    const currentKp = parseFloat(document.getElementById('kp-val').innerText) || 0.0;
-                    checkHazardProximity(currentKp, currentRoute);
-                }
-                closeDeletePwdModal();
-            } else {
-                alert("パスワードが違います。");
-                document.getElementById('delete-pwd-input').value = '';
-            }
-        }
-
-        function pinCurrentKp() {
-            const currentKp = document.getElementById('kp-val').innerText;
-            const routeText = document.getElementById('route-text').innerText;
-            const unitLabel = document.getElementById('kp-unit-label').innerText;
-            const now = new Date();
-            const timeStr = `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
-            
-            const pinnedData = `[${timeStr}] ${routeText} : ${currentKp} ${unitLabel}`;
-            localStorage.setItem('neco_pinned_kp', pinnedData);
-            loadPinnedKp();
-        }
-
-        function clearPinnedKp() {
-            localStorage.removeItem('neco_pinned_kp');
-            loadPinnedKp();
-        }
-
-        function loadPinnedKp() {
-            const pinnedData = localStorage.getItem('neco_pinned_kp');
-            const displayEl = document.getElementById('pinned-kp-display');
-            if (pinnedData) {
-                displayEl.innerText = `[記録] ${pinnedData}`;
-                displayEl.style.display = 'block';
-            } else {
-                displayEl.style.display = 'none';
-            }
-        }
-
-        function copyAllComments() {
-            const comments = getStoredComments();
-            if (comments.length === 0) { alert("コピーするデータがありません。"); return; }
-
-            let textToCopy = "[Axis Line Operations - 共有コメントボード]\n\n";
-            const totalCount = comments.length;
-            comments.forEach((c, idx) => {
-                const displayNum = totalCount - idx;
-                textToCopy += `[#${displayNum} - ${c.date}] KP:${c.kp.toFixed(2)} ${c.text}\n`;
-            });
-
-            navigator.clipboard.writeText(textToCopy).then(() => {
-                alert("すべての共有コメントをコピーしました！");
-            });
-        }
-
-        function escapeHtml(str) {
-            return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;');
-        }
-
-        let currentRoute = 'TOHOKU';
-        let currentDirection = 'UP';
-        let operationMode = 'AUTO';
-        let userOverrodeRoute = false;
-
-        const facilitiesData = {
-            TOHOKU: [
-                { name: "川口JCT", start: -0.59, end: 0.73, kp: 0.0, type: "JCT" },
-                { name: "浦和IC", start: 2.89, end: 3.19, kp: 3.0, type: "IC" },
-                { name: "浦和TB", start: 4.34, end: 5.34, kp: 4.8, type: "TB" },
-                { name: "岩槻IC", start: 9.94, end: 11.01, kp: 10.5, type: "IC" },
-                { name: "蓮田SA", start: 17.66, end: 18.60, kp: 17.6, type: "SA", dir: "UP" },
-                { name: "蓮田SA", start: 17.63, end: 18.65, kp: 17.6, type: "SA", dir: "DOWN" },
-                { name: "白岡BS", start: 20.19, end: 20.72, kp: 20.4, type: "BS" },
-                { name: "久喜白岡JCT", start: 23.30, end: 24.40, kp: 22.2, type: "JCT" },
-                { name: "久喜IC", start: 24.98, end: 25.84, kp: 24.3, type: "IC" },
-                { name: "加須IC", start: 32.96, end: 33.68, kp: 33.3, type: "IC" },
-                { name: "羽生IC", start: 39.09, end: 39.89, kp: 39.7, type: "IC" },
-                { name: "羽生PA", start: 40.28, end: 41.00, kp: 40.6, type: "PA" },
-                { name: "館林IC", start: 45.51, end: 46.28, kp: 45.4, type: "IC" },
-                { name: "大島BS", start: 50.57, end: 51.06, kp: 50.8, type: "BS" },
-                { name: "佐野藤岡IC", start: 54.37, end: 55.59, kp: 55.4, type: "IC" },
-                { name: "佐野SA", start: 57.80, end: 58.60, kp: 58.2, type: "SA" },
-                { name: "岩舟JCT", start: 61.00, end: 61.80, kp: 61.5, type: "JCT" },
-                { name: "岩舟BS", start: 62.00, end: 62.60, kp: 62.3, type: "BS" },
-                { name: "栃木IC", start: 66.00, end: 67.20, kp: 66.7, type: "IC" }
-            ],
-            KENOH: [
-                { name: "川島IC", start: 41.0, end: 41.5, kp: 41.2, type: "IC" },
-                { name: "桶川北本IC", start: 47.5, end: 48.1, kp: 47.8, type: "IC" },
-                { name: "白岡菖蒲IC", start: 57.0, end: 58.0, kp: 57.5, type: "IC" },
-                { name: "久喜白岡JCT", start: 59.8, end: 60.4, kp: 60.1, type: "JCT" },
-                { name: "幸手IC", start: 64.5, end: 65.2, kp: 64.8, type: "IC" },
-                { name: "五霞IC", start: 68.9, end: 69.5, kp: 69.2, type: "IC" },
-                { name: "常総IC", start: 80.0, end: 81.0, kp: 80.5, type: "IC" }
-            ]
-        };
-
-        // 東北道のアンカーポイント
-        const tohokuAnchors = [
-            { lat: 35.8050, kp: 0.0 },   // 川口JCT
-            { lat: 35.8650, kp: 4.8 },   // 浦和TB
-            { lat: 36.00557, kp: 20.0 }, // 新規追加の実測データ (下り20kp)
-            { lat: 36.05559, kp: 30.0 }, // 実測データ (下り30kp)
-            { lat: 36.1770, kp: 33.1 },  // 加須IC付近
-            { lat: 36.3100, kp: 55.4 }   // 佐野藤岡IC
-        ];
-
-        function manualSelectRoute(route) {
-            userOverrodeRoute = true;
-            setRoute(route);
-            if (operationMode === 'MANUAL_PC') applyManualKP();
-        }
-
-        function setRoute(route) {
-            currentRoute = route;
-            document.getElementById('btn-tohoku').classList.toggle('active', route === 'TOHOKU');
-            document.getElementById('btn-kenoh').classList.toggle('active', route === 'KENOH');
-            updateRouteText();
-        }
-
-        function setDirection(dir) {
-            currentDirection = dir;
-            document.getElementById('btn-up').classList.toggle('active', dir === 'UP');
-            document.getElementById('btn-down').classList.toggle('active', dir === 'DOWN');
-            updateRouteText();
-            
-            if (document.getElementById('hazard-list-modal').style.display === 'flex') {
-                renderSortedHazardList();
-            }
-
-            const currentKp = parseFloat(document.getElementById('kp-val').innerText) || 0.0;
-            checkHazardProximity(currentKp, currentRoute);
-
-            if (operationMode === 'MANUAL_PC') applyManualKP();
-        }
-
-        function setMode(mode) {
-            operationMode = mode;
-            const isAuto = (mode === 'AUTO');
-            document.getElementById('btn-mode-auto').classList.toggle('active', isAuto);
-            document.getElementById('btn-mode-auto').style.background = isAuto ? '#00aa00' : '#222';
-            document.getElementById('btn-mode-manual').classList.toggle('active', !isAuto);
-            document.getElementById('btn-mode-manual').style.background = !isAuto ? '#ffcc00' : '#222';
-            document.getElementById('btn-mode-manual').style.color = !isAuto ? '#000' : '#aaa';
-            
-            document.getElementById('manual-panel').style.display = isAuto ? 'none' : 'flex';
-            document.getElementById('auto-status-badge').style.display = isAuto ? 'inline-block' : 'none';
-
-            if (!isAuto) {
-                document.getElementById('gps-status').innerHTML = '<span class="status-warn">Manual PC Mode</span>';
-                applyManualKP();
-            } else {
-                userOverrodeRoute = false;
-            }
-        }
-
-        function updateRouteText() {
-            const routeName = currentRoute === 'TOHOKU' ? '東北自動車道' : '首都圏中央連絡自動車道 (圏央道)';
-            const dirName = currentDirection === 'UP' ? (currentRoute === 'TOHOKU' ? '上り' : '内回り') : (currentRoute === 'TOHOKU' ? '下り' : '外回り');
-            document.getElementById('route-text').innerText = `${routeName} (${dirName})`;
-        }
-
-        function updateCurrentZone(currentKp) {
-            const list = facilitiesData[currentRoute];
-            const zoneEl = document.getElementById('current-zone');
-            const unitEl = document.getElementById('kp-unit-label');
-            if (!list) { zoneEl.style.display = 'none'; return; }
-
-            let matchedZone = null;
-            for (let f of list) {
-                if (f.name === "蓮田SA" && f.dir && f.dir !== currentDirection) continue;
-                if (currentKp >= f.start && currentKp <= f.end) { matchedZone = f; break; }
-            }
-
-            if (matchedZone) {
-                zoneEl.innerText = `${matchedZone.name} 区間内`;
-                zoneEl.style.display = 'inline-block';
-                unitEl.innerText = matchedZone.unit || 'kp';
-            } else {
-                zoneEl.style.display = 'none';
-                unitEl.innerText = 'kp';
-            }
-        }
-
-        function updateNextFacility(currentKp) {
-            const list = facilitiesData[currentRoute];
-            if (!list) return;
-
-            let uniqueList = [];
-            let seenNames = new Set();
-            for (let f of list) {
-                if (f.name === "蓮田SA" && f.dir && f.dir !== currentDirection) continue;
-                if (f.type === "RAMP" || f.type === "POINT") continue;
-                if (!seenNames.has(f.name)) { seenNames.add(f.name); uniqueList.push(f); }
-            }
-
-            let nextFac = null;
-            let dist = 0;
-
-            if (currentDirection === 'UP') {
-                let candidates = uniqueList.filter(f => f.kp < currentKp);
-                if (candidates.length > 0) {
-                    candidates.sort((a, b) => b.kp - a.kp);
-                    nextFac = candidates[0];
-                    dist = currentKp - nextFac.kp;
-                }
-            } else {
-                let candidates = uniqueList.filter(f => f.kp > currentKp);
-                if (candidates.length > 0) {
-                    candidates.sort((a, b) => a.kp - b.kp);
-                    nextFac = candidates[0];
-                    dist = nextFac.kp - currentKp;
-                }
-            }
-
-            const nameEl = document.getElementById('next-fac-name');
-            const distEl = document.getElementById('next-fac-dist');
-            const warningBanner = document.getElementById('shuto-warning-banner');
-            const warnTitleText = document.getElementById('warn-title-text');
-            const warnSubText = document.getElementById('warn-sub-text');
-            const nextBox = document.getElementById('next-box');
-            const bodyEl = document.body;
-
-            if (nextFac) {
-                nameEl.innerText = `${nextFac.name} (${nextFac.type})`;
-                distEl.innerText = `あと ${dist.toFixed(2)} km`;
-
-                if (nextFac.name === "川口JCT" && currentRoute === 'TOHOKU' && currentDirection === 'UP') {
-                    warningBanner.style.display = 'block';
-                    warnTitleText.innerText = "[警告] 首都高注意！";
-                    warnSubText.innerText = "まもなく川口JCT（首都高境界）です";
-                    nextBox.style.borderColor = '#ff0000';
-                    bodyEl.classList.add('shuto-alert-mode');
-                } else if (currentRoute === 'TOHOKU' && currentDirection === 'DOWN' && currentKp >= 50.8 && currentKp <= 55.4) {
-                    warningBanner.style.display = 'block';
-                    warnTitleText.innerText = "[警告] 宇都宮注意！";
-                    warnSubText.innerText = "まもなく佐野藤岡IC（宇都宮境界です）";
-                    nextBox.style.borderColor = '#ff0000';
-                    bodyEl.classList.add('shuto-alert-mode');
-                } else if (currentRoute === 'TOHOKU' && currentDirection === 'DOWN' && currentKp > 61.5 && currentKp <= 66.7) {
-                    warningBanner.style.display = 'block';
-                    warnTitleText.innerText = "[警告] 工事プレート注意！";
-                    warnSubText.innerText = "栃木IC反転して下さい。";
-                    nextBox.style.borderColor = '#ff0000';
-                    bodyEl.classList.add('shuto-alert-mode');
-                } else {
-                    warningBanner.style.display = 'none';
-                    nextBox.style.borderColor = '#444';
-                    bodyEl.classList.remove('shuto-alert-mode');
-                }
-            } else {
-                nameEl.innerText = "前方施設なし";
-                distEl.innerText = "-- km";
-                warningBanner.style.display = 'none';
-                nextBox.style.borderColor = '#444';
-                bodyEl.classList.remove('shuto-alert-mode');
-            }
-        }
-
-        function applyManualKP() {
-            const valInput = document.getElementById('manual-kp-input').value;
-            const val = parseFloat(valInput);
-            if (!isNaN(val)) {
-                const formatted = formatKp(val);
-                document.getElementById('kp-val').innerText = formatted;
-                document.getElementById('latlng-text').innerText = `Lat/Lng: Manual Input (Simulated)`;
-                updateCurrentZone(val);
-                updateNextFacility(val);
-                checkHazardProximity(val, currentRoute);
-            }
-        }
-
-        function detectRouteAndCalculateKP(lat, lng) {
-            if (!userOverrodeRoute) {
-                if (lng >= 139.63 && lng <= 139.75 && lat >= 36.03 && lat <= 36.12) {
-                    if (currentRoute !== 'KENOH') setRoute('KENOH');
-                } else {
-                    if (currentRoute !== 'TOHOKU') setRoute('TOHOKU');
-                }
-            }
-
-            let estimatedKp = 0.0;
-            if (currentRoute === 'TOHOKU') {
-                let lowerAnchor = tohokuAnchors[0];
-                let upperAnchor = tohokuAnchors[tohokuAnchors.length - 1];
-
-                for (let i = 0; i < tohokuAnchors.length - 1; i++) {
-                    if (lat >= tohokuAnchors[i].lat && lat <= tohokuAnchors[i+1].lat) {
-                        lowerAnchor = tohokuAnchors[i];
-                        upperAnchor = tohokuAnchors[i+1];
-                        break;
-                    }
-                }
-                if (lat < tohokuAnchors[0].lat) {
-                    lowerAnchor = tohokuAnchors[0];
-                    upperAnchor = tohokuAnchors[1];
-                }
-                if (lat > tohokuAnchors[tohokuAnchors.length-1].lat) {
-                    lowerAnchor = tohokuAnchors[tohokuAnchors.length-2];
-                    upperAnchor = tohokuAnchors[tohokuAnchors.length-1];
-                }
-
-                const latDiff = upperAnchor.lat - lowerAnchor.lat;
-                const kpDiff = upperAnchor.kp - lowerAnchor.kp;
-                
-                if (latDiff !== 0) {
-                    const ratio = (lat - lowerAnchor.lat) / latDiff;
-                    estimatedKp = lowerAnchor.kp + (kpDiff * ratio);
-                } else {
-                    estimatedKp = lowerAnchor.kp + (lat - lowerAnchor.lat) * 111.13;
-                }
-            } else {
-                const kenohBaseLat = 36.0020;
-                estimatedKp = (lat - kenohBaseLat) * 111.13 + 45.0;
-            }
-
-            if (estimatedKp < 0) estimatedKp = 0.0;
-            return estimatedKp;
+        function setLayer(layer) {
+            currentLayer = layer;
+            document.querySelectorAll('.layer-tab').forEach(tab => tab.classList.remove('active'));
+            event.target.classList.add('active');
+            renderKpList();
         }
 
         function initSystem() {
-            if (!navigator.geolocation) { alert("お使いのブラウザは位置情報に対応していません。"); return; }
-
-            const statusEl = document.getElementById('gps-status');
-            const latLngEl = document.getElementById('latlng-text');
-            const kpValEl = document.getElementById('kp-val');
-
-            const options = { enableHighAccuracy: true, maximumAge: 0, timeout: 5000 };
-
+            if (!navigator.geolocation) {
+                alert("位置情報がサポートされていません");
+                return;
+            }
             navigator.geolocation.watchPosition(
-                (position) => {
-                    if (operationMode !== 'AUTO') return;
-
-                    const lat = position.coords.latitude;
-                    const lng = position.coords.longitude;
-                    const accuracy = position.coords.accuracy;
-                    const speedMs = position.coords.speed;
-                    const speedKmH = (speedMs !== null && speedMs >= 0) ? speedMs * 3.6 : 0;
-
-                    let modeText = speedKmH <= 5 ? "停止・徒歩 (超高精度)" : (speedKmH <= 50 ? "低速巡回" : "高速巡航");
-                    const rawKp = detectRouteAndCalculateKP(lat, lng);
-                    const kp = parseFloat(formatKp(rawKp));
-
-                    kpValEl.innerText = kp.toFixed(2);
-                    latLngEl.innerHTML = `Lat/Lng: ${lat.toFixed(4)}, ${lng.toFixed(4)} (Acc: ${Math.round(accuracy)}m)`;
-                    statusEl.innerHTML = `<span class="status-ok">GPS Active (${modeText} / ${speedKmH.toFixed(0)}km/h)</span>`;
-
-                    updateCurrentZone(kp);
-                    updateNextFacility(kp);
-                    checkHazardProximity(kp, currentRoute);
+                (pos) => {
+                    if (!authenticated) return;
+                    latestLat = pos.coords.latitude;
+                    latestLng = pos.coords.longitude;
+                    latestAccuracy = pos.coords.accuracy;
+                    document.getElementById('gps-status').innerHTML = 
+                        `GPS Active: <span class="status-ok">${latestLat.toFixed(5)}, ${latestLng.toFixed(5)}</span> (精度: +/-${Math.round(latestAccuracy)}m)`;
                 },
-                (error) => {
-                    if (operationMode === 'AUTO') {
-                        statusEl.innerHTML = `<span class="status-warn">GPS Error (${error.code})</span>`;
-                    }
+                (err) => {
+                    document.getElementById('gps-status').innerHTML = `<span style="color:#f87171;">GPS エラー: ${err.message}</span>`;
                 },
-                options
+                { enableHighAccuracy: true, maximumAge: 0, timeout: 5000 }
             );
+            renderKpList();
+            renderStructList();
+            updateStats();
+        }
+
+        function jumpToCurrentGPS() {
+            if (latestLat === 0) {
+                alert("まだGPSの位置情報が取得できていません。");
+                return;
+            }
+            let estimatedKp = (latestLat - 35.805) * 111.13;
+            if (estimatedKp < 0) estimatedKp = 0;
+            if (estimatedKp > 55) estimatedKp = 55;
+            scrollToKp(Math.round(estimatedKp * 10));
+        }
+
+        function jumpToKp() {
+            const val = parseFloat(document.getElementById('jump-kp-input').value);
+            if (!isNaN(val) && val >= 0 && val <= 55) {
+                scrollToKp(Math.round(val * 10));
+            } else {
+                alert("0.0 〜 55.0 の範囲で入力してください。");
+            }
+        }
+
+        function scrollToKp(index) {
+            const cardEl = document.getElementById(`kp-card-${index}`);
+            if (cardEl) {
+                cardEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                cardEl.style.borderColor = '#00ffff';
+                setTimeout(() => { cardEl.style.borderColor = '#334155'; }, 2000);
+            }
+        }
+
+        function renderKpList() {
+            const container = document.getElementById('kp-cards-container');
+            const data = getStoredData();
+            let html = '';
+
+            // 0.0kp (0) から 55.0kp (550) までスクロールリスト生成
+            for (let i = 0; i <= 550; i++) {
+                let kpVal = (i / 10).toFixed(1);
+                let key = `${currentLayer}_${kpVal}`;
+                let entry = data.kpLogs[key];
+
+                let count = entry && entry.points ? entry.points.length : 0;
+                let btnClass = "m-step-1";
+                let btnText = "1回";
+                if (count === 1) { btnClass = "m-step-2"; btnText = "2回"; }
+                else if (count === 2) { btnClass = "m-step-3"; btnText = "3回"; }
+                else if (count >= 3) { btnClass = "m-done"; btnText = "完了"; }
+
+                let statusInfo = count === 0 ? "未計測" : (count < 3 ? `計測中 (${count}/3回)` : `平均取得済み`);
+
+                let hasAvg = entry && entry.avg;
+                let latVal = hasAvg ? entry.avg.lat : '';
+                let lngVal = hasAvg ? entry.avg.lng : '';
+
+                html += `
+                    <div class="kp-card" id="kp-card-${i}">
+                        <div class="kp-top-row">
+                            <div class="kp-info">
+                                <div class="kp-title">${kpVal} kp</div>
+                                <div class="kp-status-text" id="status-text-${currentLayer}-${kpVal}">${statusInfo}</div>
+                            </div>
+                            <div class="kp-actions">
+                                <button class="btn-measure ${btnClass}" onclick="recordPoint('${currentLayer}', '${kpVal}')">${btnText}</button>
+                                ${count > 0 ? `<button class="btn-undo-single" onclick="undoLastPoint('${currentLayer}', '${kpVal}')">1回戻す</button>` : ''}
+                            </div>
+                        </div>
+                        <div class="manual-coord-box">
+                            <input type="number" id="lat-${currentLayer}-${kpVal}" placeholder="緯度 (N)" value="${latVal}" step="0.00001">
+                            <input type="number" id="lng-${currentLayer}-${kpVal}" placeholder="経度 (E)" value="${lngVal}" step="0.00001">
+                            <button class="btn-manual-save" onclick="saveKpManual('${currentLayer}', '${kpVal}')">手入力保存</button>
+                        </div>
+                    </div>
+                `;
+            }
+            container.innerHTML = html;
+        }
+
+        function recordPoint(layer, kpVal) {
+            if (latestLat === 0) {
+                alert("GPS位置がまだ取得できていません。手入力で保存することも可能です。");
+                return;
+            }
+
+            let data = getStoredData();
+            let key = `${layer}_${kpVal}`;
+            if (!data.kpLogs[key]) {
+                data.kpLogs[key] = { points: [] };
+            }
+
+            if (data.kpLogs[key].points.length >= 3) {
+                alert("既に3回計測が完了しています。");
+                return;
+            }
+
+            data.kpLogs[key].points.push({ lat: latestLat, lng: latestLng, accuracy: latestAccuracy });
+
+            if (data.kpLogs[key].points.length === 3) {
+                let sumLat = 0, sumLng = 0;
+                data.kpLogs[key].points.forEach(p => { sumLat += p.lat; sumLng += p.lng; });
+                data.kpLogs[key].avg = { lat: sumLat / 3, lng: sumLng / 3 };
+            }
+
+            saveStoredData(data);
+            renderKpList();
+        }
+
+        function undoLastPoint(layer, kpVal) {
+            let data = getStoredData();
+            let key = `${layer}_${kpVal}`;
+            if (data.kpLogs[key] && data.kpLogs[key].points && data.kpLogs[key].points.length > 0) {
+                data.kpLogs[key].points.pop();
+                delete data.kpLogs[key].avg;
+                if (data.kpLogs[key].points.length === 0) delete data.kpLogs[key];
+                saveStoredData(data);
+                renderKpList();
+            }
+        }
+
+        function saveKpManual(layer, kpVal) {
+            let latInput = document.getElementById(`lat-${layer}-${kpVal}`).value;
+            let lngInput = document.getElementById(`lng-${layer}-${kpVal}`).value;
+
+            if (!latInput || !lngInput) {
+                alert("緯度(N)と経度(E)の両方を入力してください。");
+                return;
+            }
+
+            let data = getStoredData();
+            let key = `${layer}_${kpVal}`;
+            
+            data.kpLogs[key] = {
+                points: [
+                    { lat: parseFloat(latInput), lng: parseFloat(lngInput), accuracy: 1 }
+                ],
+                avg: {
+                    lat: parseFloat(latInput),
+                    lng: parseFloat(lngInput)
+                }
+            };
+
+            saveStoredData(data);
+            renderKpList();
+            alert(`${kpVal}kp (${layer}) の座標を手入力保存しました！`);
+        }
+
+        function onCategoryChange() {
+            const cat = document.getElementById('struct-category').value;
+            document.getElementById('attr-wall').style.display = (cat === '防音壁') ? 'flex' : 'none';
+            document.getElementById('attr-bridge').style.display = (cat === '橋梁') ? 'flex' : 'none';
+        }
+
+        function saveStructureManual() {
+            const name = document.getElementById('struct-name').value.trim();
+            if (!name) {
+                alert("構造物の名称を入力してください。");
+                return;
+            }
+
+            const cat = document.getElementById('struct-category').value;
+            let attrs = {};
+            if (cat === '防音壁') {
+                attrs.height = document.getElementById('attr-wall-height').value;
+            } else if (cat === '橋梁') {
+                attrs.opening = document.getElementById('attr-bridge-opening').value;
+                attrs.gap = document.getElementById('attr-bridge-gap').value;
+            }
+
+            let coords = {
+                up_start: readCoord('in_up_start'),
+                up_end: readCoord('in_up_end'),
+                down_start: readCoord('in_down_start'),
+                down_end: readCoord('in_down_end')
+            };
+
+            let data = getStoredData();
+            data.structures.push({
+                id: 'struct_' + Date.now(),
+                category: cat,
+                name: name,
+                attributes: attrs,
+                coords: coords
+            });
+
+            saveStoredData(data);
+            
+            document.getElementById('struct-name').value = '';
+            ['in_up_start', 'in_up_end', 'in_down_start', 'in_down_end'].forEach(p => {
+                document.getElementById(p + '_lat').value = '';
+                document.getElementById(p + '_lng').value = '';
+            });
+
+            renderStructList();
+            alert(`「${name}」を登録しました！`);
+        }
+
+        function readCoord(prefix) {
+            let lat = parseFloat(document.getElementById(prefix + '_lat').value);
+            let lng = parseFloat(document.getElementById(prefix + '_lng').value);
+            if (!isNaN(lat) && !isNaN(lng)) {
+                return { lat: lat, lng: lng };
+            }
+            return null;
+        }
+
+        function deleteStructure(id) {
+            if (!confirm("この構造物データを削除しますか？")) return;
+            let data = getStoredData();
+            data.structures = data.structures.filter(s => s.id !== id);
+            saveStoredData(data);
+            renderStructList();
+        }
+
+        function renderStructList() {
+            const container = document.getElementById('struct-cards-container');
+            const data = getStoredData();
+            let html = '';
+
+            if (!data.structures || data.structures.length === 0) {
+                container.innerHTML = '<div style="text-align:center; font-size:11px; color:#64748b; padding:20px;">登録された構造物はまだありません</div>';
+                return;
+            }
+
+            data.structures.forEach(s => {
+                let attrStr = '';
+                if (s.category === '防音壁') attrStr = `[高さ: ${s.attributes.height}]`;
+                if (s.category === '橋梁') attrStr = `[分離帯開口: ${s.attributes.opening} / 床板隙間: ${s.attributes.gap}]`;
+
+                html += `
+                    <div class="struct-card">
+                        <div class="struct-info">
+                            <div class="struct-title">[${s.category}] ${s.name}</div>
+                            <div class="struct-status-text">${attrStr} 登録済み</div>
+                        </div>
+                        <button class="btn-delete-struct" onclick="deleteStructure('${s.id}')">削除</button>
+                    </div>
+                `;
+            });
+            container.innerHTML = html;
+        }
+
+        function updateStats() {
+            let data = getStoredData();
+            let kpTotal = Object.keys(data.kpLogs).filter(k => data.kpLogs[k].avg).length;
+            let structTotal = data.structures ? data.structures.length : 0;
+            document.getElementById('stats-text').innerText = `KP登録完了: ${kpTotal}件 / 構造物登録: ${structTotal}件`;
+        }
+
+        function exportDataJson() {
+            let data = getStoredData();
+            let dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(data, null, 2));
+            let downloadAnchor = document.createElement('a');
+            downloadAnchor.setAttribute("href", dataStr);
+            downloadAnchor.setAttribute("download", `neco_integrated_master_export.json`);
+            document.body.appendChild(downloadAnchor);
+            downloadAnchor.click();
+            downloadAnchor.remove();
+        }
+
+        function promptResetAllData() {
+            document.getElementById('reset-pwd-input').value = '';
+            document.getElementById('pwd-error').style.display = 'none';
+            document.getElementById('pwd-modal').style.display = 'flex';
+            document.getElementById('reset-pwd-input').focus();
+        }
+
+        function closeResetModal() {
+            document.getElementById('pwd-modal').style.display = 'none';
+        }
+
+        function confirmResetAllData() {
+            const entered = document.getElementById('reset-pwd-input').value;
+            if (verifyPassword(entered)) {
+                localStorage.removeItem('neco_integrated_master_data');
+                renderKpList();
+                renderStructList();
+                updateStats();
+                closeResetModal();
+                alert("すべてのデータをリセットしました。");
+            } else {
+                document.getElementById('pwd-error').style.display = 'block';
+            }
         }
     </script>
 </body>
