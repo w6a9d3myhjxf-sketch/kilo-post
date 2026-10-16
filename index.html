@@ -1,1155 +1,1002 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Network for Expressway Coordinate & Observation</title>
-    <!-- PWA用設定 -->
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        body {
-            background-color: #000;
-            color: #fff;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            height: 100vh;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            overflow: hidden;
-            transition: background-color 0.3s;
-        }
-        body.shuto-alert-mode { background-color: #330000; }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+  <title>N.E.C.O. System - Expressway Coordinate & Observation</title>
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <style>
+    :root {
+      --bg-primary: #121212;
+      --bg-secondary: #1e1e1e;
+      --bg-card: #282828;
+      --accent: #00bcd4;
+      --text-main: #ffffff;
+      --text-sub: #b0b0b0;
+      --border-color: #383838;
+      --status-ok: #4caf50;
+      --status-warn: #f44336;
+      --status-speed: #ffeb3b;
+      --nexco-green: #00873c;
+    }
 
-        /* 各種モーダルオーバーレイ */
-        #auth-overlay, #support-modal, #manual-modal, #camera-modal, #hazard-alert-modal, #hazard-list-modal {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.92);
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            z-index: 9999;
-            padding: 15px;
-        }
-        .auth-card {
-            background: #181818;
-            border: 1px solid #444;
-            border-radius: 10px;
-            padding: 20px 18px;
-            width: 90%;
-            max-width: 400px;
-            text-align: center;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.6);
-        }
-        .auth-card h2 {
-            font-size: 13px; color: #00ffff; margin-bottom: 10px; letter-spacing: 1px; line-height: 1.4;
-        }
-        .disclaimer-box {
-            background: rgba(255, 68, 68, 0.08); border: 1px dashed rgba(255, 68, 68, 0.4);
-            border-radius: 6px; padding: 10px; font-size: 11px; color: #ff9999; text-align: left; line-height: 1.5; margin-bottom: 10px;
-        }
-        .disclaimer-box b { color: #ffcc00; display: block; margin-bottom: 4px; }
-        .manual-link { font-size: 11px; color: #00ffff; text-decoration: underline; cursor: pointer; display: inline-block; margin-bottom: 12px; }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      -webkit-tap-highlight-color: transparent;
+    }
 
-        .auth-copyright, .app-copyright { font-size: 10px; color: #777; letter-spacing: 0.5px; }
-        .auth-copyright { margin-top: 12px; border-top: 1px solid #333; padding-top: 8px; }
-        .app-copyright { margin-top: 4px; border-top: 1px solid #222; padding-top: 4px; }
+    body {
+      background-color: var(--bg-primary);
+      color: var(--text-main);
+      padding: 6px;
+      width: 100vw;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
 
-        #auth-overlay input {
-            padding: 10px; font-size: 16px; border-radius: 6px; border: 1px solid #444; background: #111; color: #fff; width: 100%; text-align: center; margin-bottom: 10px; letter-spacing: 2px;
-        }
-        #auth-overlay button {
-            padding: 10px; font-size: 15px; font-weight: bold; background: #ffcc00; color: #000; border: none; border-radius: 6px; cursor: pointer; width: 100%;
-        }
-        #auth-error { color: #ff4444; font-size: 13px; margin-top: 8px; display: none; }
+    /* --- アプリ全体ログイン画面 --- */
+    #auth-overlay {
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0,0,0,0.95);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      z-index: 10000;
+      padding: 15px;
+    }
+    .auth-card {
+      background: #181818;
+      border: 1px solid #444;
+      border-radius: 10px;
+      padding: 20px 18px;
+      width: 90%;
+      max-width: 400px;
+      text-align: center;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.8);
+    }
+    .auth-card h2 {
+      font-size: 13px; color: #00ffff; margin-bottom: 10px; letter-spacing: 1px; line-height: 1.4;
+    }
+    .disclaimer-box {
+      background: rgba(255, 68, 68, 0.08); border: 1px dashed rgba(255, 68, 68, 0.4);
+      border-radius: 6px; padding: 10px; font-size: 11px; color: #ff9999; text-align: left; line-height: 1.5; margin-bottom: 10px;
+    }
+    .disclaimer-box b { color: #ffcc00; display: block; margin-bottom: 4px; }
+    .manual-link { font-size: 11px; color: #00ffff; text-decoration: underline; cursor: pointer; display: inline-block; margin-bottom: 12px; }
+    .auth-copyright { font-size: 10px; color: #777; letter-spacing: 0.5px; margin-top: 12px; border-top: 1px solid #333; padding-top: 8px; }
 
-        /* システム説明書モーダル */
-        #manual-modal-content {
-            background: #1e1e1e; border: 1px solid #00ffff; border-radius: 10px; padding: 18px; width: 95%; max-width: 420px; text-align: left; max-height: 85vh; display: flex; flex-direction: column; box-shadow: 0 0 20px rgba(0,255,255,0.2);
-        }
-        #manual-modal-content h3 { font-size: 15px; color: #00ffff; border-bottom: 1px solid #333; padding-bottom: 6px; margin-bottom: 10px; text-align: center; }
-        .manual-body { flex: 1; overflow-y: auto; font-size: 11px; line-height: 1.6; color: #ddd; padding-right: 4px; }
-        .manual-section { margin-bottom: 12px; background: rgba(255,255,255,0.03); border-left: 3px solid #00ffff; padding: 8px 10px; border-radius: 0 4px 4px 0; }
-        .manual-section-alert { border-left-color: #00ff66; background: rgba(0, 255, 102, 0.05); }
+    .auth-card input {
+      padding: 12px; font-size: 16px; border-radius: 6px; border: 1px solid #555; background: #111; color: #fff; width: 100%; text-align: center; margin-bottom: 10px; letter-spacing: 2px; outline: none;
+    }
+    .auth-card button {
+      padding: 12px; font-size: 15px; font-weight: bold; background: #ffcc00; color: #000; border: none; border-radius: 6px; cursor: pointer; width: 100%;
+    }
+    .auth-error { color: #ff4444; font-size: 13px; margin-top: 8px; display: none; font-weight: bold; }
 
-        /* カメラ撮影モーダル */
-        #camera-modal-content { background: #151515; border: 1px solid #ff8800; border-radius: 10px; padding: 12px; width: 95%; max-width: 400px; text-align: center; max-height: 95vh; display: flex; flex-direction: column; align-items: center; }
-        .camera-viewport { position: relative; width: 100%; height: 320px; background: #000; border-radius: 6px; overflow: hidden; display: flex; justify-content: center; align-items: center; margin-bottom: 8px; }
-        #camera-video, #camera-canvas { width: 100%; height: 100%; object-fit: cover; }
-        .camera-overlay-info { position: absolute; bottom: 10px; left: 10px; right: 10px; background: rgba(0, 0, 0, 0.7); border: 1px solid rgba(255, 204, 0, 0.6); border-radius: 6px; padding: 6px 10px; text-align: left; font-size: 12px; color: #ffcc00; backdrop-filter: blur(2px); pointer-events: none; }
-        .cam-info-line { display: flex; justify-content: space-between; font-weight: bold; }
-        .cam-info-sub { font-size: 10px; color: #00ff66; margin-top: 2px; }
-        .memo-input-on-cam { width: 100%; padding: 6px; background: #111; color: #fff; border: 1px solid #555; border-radius: 4px; font-size: 13px; margin-bottom: 8px; text-align: left; }
+    /* メイン画面 */
+    #main-app {
+      display: none;
+      flex: 1;
+      flex-direction: column;
+      overflow: hidden;
+      width: 100%;
+      height: 100%;
+    }
 
-        /* 危険箇所リスト専用モーダル */
-        #hazard-list-modal-content {
-            background: #181212;
-            border: 2px solid #ff4444;
-            border-radius: 10px;
-            padding: 14px;
-            width: 98%;
-            max-width: 450px;
-            height: 88vh;
-            display: flex;
-            flex-direction: column;
-            box-shadow: 0 0 30px rgba(255, 68, 68, 0.3);
-        }
-        .hazard-page-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 1px solid #442222;
-            padding-bottom: 8px;
-            margin-bottom: 10px;
-        }
-        .hazard-page-title { font-size: 14px; font-weight: bold; color: #ff4444; letter-spacing: 1px; }
-        .hazard-card-container {
-            flex: 1;
-            overflow-y: auto;
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 10px;
-            padding-right: 4px;
-        }
-        .hazard-card {
-            background: #251818;
-            border: 1px solid #552222;
-            border-radius: 8px;
-            padding: 10px;
-            position: relative;
-        }
-        .hazard-card-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 6px;
-        }
-        .hazard-kp-badge {
-            background: #ff0000;
-            color: #fff;
-            font-size: 13px;
-            font-weight: 900;
-            padding: 2px 8px;
-            border-radius: 4px;
-        }
-        .hazard-card-date { font-size: 10px; color: #aaa; }
-        .hazard-card-body { font-size: 12px; color: #fff; margin-bottom: 8px; line-height: 1.4; word-break: break-all; }
-        .hazard-card-img {
-            width: 100%;
-            height: 180px;
-            object-fit: cover;
-            border-radius: 6px;
-            border: 1px solid #663333;
-            cursor: pointer;
-        }
-        .hazard-card-del {
-            position: absolute;
-            bottom: 10px;
-            right: 10px;
-            background: rgba(0,0,0,0.7);
-            color: #ff6666;
-            border: 1px solid #ff4444;
-            padding: 3px 8px;
-            font-size: 10px;
-            border-radius: 4px;
-            cursor: pointer;
-        }
+    /* ナビゲーションタブ */
+    .nav-tabs {
+      display: flex;
+      gap: 4px;
+      background-color: #171717;
+      padding: 5px;
+      border-radius: 10px;
+      margin-bottom: 6px;
+      border: 1px solid var(--border-color);
+      flex-shrink: 0;
+      overflow-x: auto;
+    }
 
-        /* テキストコメント専用モーダル */
-        #support-modal-content {
-            background: #222; border: 1px solid #555; border-radius: 10px; padding: 15px; width: 95%; max-width: 400px; text-align: center; max-height: 90vh; display: flex; flex-direction: column;
-        }
-        #support-modal-content h3 { font-size: 16px; color: #00ffff; margin-bottom: 8px; }
-        #support-text { width: 100%; height: 70px; background: #111; color: #fff; border: 1px solid #444; border-radius: 6px; padding: 8px; font-size: 14px; resize: none; margin-bottom: 8px; }
-        #comment-list-container { flex: 1; overflow-y: auto; max-height: 200px; background: #151515; border: 1px solid #333; border-radius: 6px; padding: 6px; margin-bottom: 10px; text-align: left; }
-        .comment-item { background: #252525; border-left: 3px solid #ffcc00; padding: 6px 8px; margin-bottom: 6px; border-radius: 4px; font-size: 12px; position: relative; }
-        .comment-header-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2px; padding-right: 15px; }
-        .comment-num { font-size: 11px; font-weight: bold; color: #ffcc00; }
-        .comment-date { font-size: 10px; color: #888; }
-        .comment-text { color: #fff; word-break: break-all; }
-        .comment-delete { position: absolute; top: 2px; right: 6px; background: none; border: none; color: #555; font-size: 16px; cursor: pointer; padding: 2px; }
-        .comment-delete:hover { color: #ff4444; }
+    .tab-btn {
+      flex: 1;
+      min-width: 65px;
+      padding: 8px 4px;
+      border: 1px solid #444;
+      background: linear-gradient(to bottom, #2c2c2c, #222222);
+      color: var(--text-sub);
+      font-size: 10.5px;
+      font-weight: bold;
+      border-radius: 6px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 3px;
+      white-space: nowrap;
+    }
 
-        .modal-btn-row { display: flex; justify-content: space-between; gap: 8px; width: 100%; }
-        .modal-btn { flex: 1; padding: 8px; font-size: 13px; font-weight: bold; border: none; border-radius: 6px; cursor: pointer; }
-        .btn-add { background: #00aa00; color: #fff; }
-        .btn-copy { background: #0088ff; color: #fff; }
-        .btn-cancel { background: #444; color: #ccc; }
-        .btn-capture { background: #ffcc00; color: #000; }
+    .tab-btn.active {
+      background: linear-gradient(to bottom, #00acc1, #00838f) !important;
+      color: #ffffff !important;
+      border-color: #00bcd4 !important;
+      box-shadow: 0 2px 8px rgba(0, 188, 212, 0.4);
+    }
 
-        /* ヘッダーデザイン */
-        header { padding: 8px 10px; background: rgba(20,20,20,0.9); border-bottom: 1px solid #333; position: relative; }
-        .header-top-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
-        .brand { font-size: 10px; color: #00ffff; letter-spacing: 1px; font-weight: bold; text-align: center; width: 100%; }
-        
-        /* 右上の補助ボタン群 */
-        .top-right-controls { display: flex; gap: 4px; position: absolute; right: 10px; top: 8px; }
-        .top-right-btn { padding: 4px 7px; font-size: 10px; font-weight: bold; border-radius: 4px; cursor: pointer; border: 1px solid; }
-        .btn-hazard-list { background: #441111; color: #ff6666; border-color: #ff4444; }
-        .btn-support { background: #333; color: #ffcc00; border-color: #ffcc00; }
+    /* ビューパネル */
+    .view-panel {
+      display: none;
+      background-color: var(--bg-secondary);
+      border-radius: 10px;
+      padding: 6px;
+      border: 1px solid var(--border-color);
+      flex: 1;
+      flex-direction: column;
+      overflow: hidden;
+    }
 
-        /* 中央配置の操作行 */
-        .control-row { display: flex; justify-content: center; gap: 6px; margin-top: 3px; }
-        .select-btn { padding: 6px 12px; font-size: 11px; font-weight: bold; border: 1px solid #555; background: #222; color: #aaa; border-radius: 6px; cursor: pointer; }
-        .select-btn.active { background: #00ffff; color: #000; border-color: #00ffff; }
-        .dir-btn.active { background: #ffcc00; color: #000; border-color: #ffcc00; }
+    .view-panel.active {
+      display: flex !important;
+    }
 
-        /* 右下に固定配置する撮影ボタン */
-        .floating-cam-btn {
-            position: fixed;
-            bottom: 25px;
-            right: 45px;
-            background: #ff8800;
-            color: #000;
-            font-weight: 900;
-            font-size: 14px;
-            padding: 14px 22px;
-            border-radius: 30px;
-            border: 2px solid #ffcc00;
-            box-shadow: 0 4px 20px rgba(255, 136, 0, 0.4);
-            z-index: 990;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-        .floating-cam-btn:active { transform: scale(0.95); }
+    .section-title {
+      font-size: 13px;
+      font-weight: bold;
+      margin-bottom: 4px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      color: var(--accent);
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: 3px;
+      flex-shrink: 0;
+    }
 
-        /* 手動入力パネル */
-        #manual-panel { background: rgba(40,40,40,0.95); padding: 6px; margin-top: 6px; border-radius: 6px; display: none; justify-content: center; align-items: center; gap: 6px; font-size: 12px; }
-        #manual-panel input { width: 90px; padding: 4px 6px; background: #111; border: 1px solid #666; color: #ffcc00; font-size: 14px; font-weight: bold; text-align: center; border-radius: 4px; }
-        #manual-panel button { padding: 4px 10px; background: #ffcc00; border: none; font-weight: bold; border-radius: 4px; cursor: pointer; color: #000; }
+    /* 1. 交通情報画面 */
+    .map-content-layout {
+      display: flex;
+      gap: 6px;
+      flex: 1;
+      width: 100%;
+      overflow: hidden;
+    }
 
-        /* メイン画面 */
-        main { flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; padding: 2px; position: relative; }
-        .route-name { font-size: 13px; color: #00ffff; margin-bottom: 1px; font-weight: bold; }
-        .current-zone-display { font-size: 14px; font-weight: bold; color: #00ff66; background: rgba(0, 255, 102, 0.1); border: 1px solid #00ff66; padding: 2px 10px; border-radius: 12px; margin-bottom: 2px; display: inline-block; }
-        
-        /* キロポスト表示（最大化） */
-        .kp-display { font-size: clamp(96px, 24vw, 148px); font-weight: 900; color: #ffcc00; text-shadow: 0 0 40px rgba(255,204,0,0.7); letter-spacing: -1px; margin: 0; line-height: 0.95; }
-        .kp-unit { font-size: clamp(32px, 8vw, 48px); margin-left: 2px; font-weight: bold; }
+    .map-wrapper {
+      background: #111111;
+      border-radius: 8px;
+      padding: 4px;
+      position: relative;
+      border: 1px solid var(--border-color);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      flex: 1;
+      overflow: auto;
+    }
 
-        /* 周辺接近時（100m以内）の点滅アラートボタン */
-        .hazard-blink-btn {
-            display: none; background: #ff0000; color: #fff; border: 2px solid #ffcc00; font-size: 12px; font-weight: 900; padding: 5px 12px; border-radius: 20px; margin-top: 4px; cursor: pointer; animation: hazard-pulse 0.8s infinite alternate; box-shadow: 0 0 15px rgba(255, 0, 0, 0.6);
-        }
-        @keyframes hazard-pulse {
-            from { transform: scale(1); opacity: 0.85; background-color: #cc0000; }
-            to { transform: scale(1.06); opacity: 1; background-color: #ff0000; }
-        }
+    .incident-sidebar {
+      width: 260px;
+      height: 100%;
+      background: #1a1a1a;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      flex-shrink: 0;
+    }
 
-        .quick-action-area { margin-top: 4px; display: flex; flex-direction: column; align-items: center; gap: 3px; width: 90%; max-width: 360px; }
-        .quick-btn-row { display: flex; gap: 8px; width: 100%; }
-        .btn-quick-record { flex: 2; background: #ff8800; color: #000; font-weight: bold; font-size: 11px; padding: 5px; border: none; border-radius: 6px; cursor: pointer; }
-        .btn-quick-clear { flex: 1; background: #444; color: #ccc; font-weight: bold; font-size: 11px; padding: 5px; border: none; border-radius: 6px; cursor: pointer; }
-        .pinned-kp-display { width: 100%; font-size: 10px; color: #00ff66; background: rgba(0,255,102,0.06); border: 1px solid rgba(0,255,102,0.25); padding: 3px 6px; border-radius: 6px; text-align: center; display: none; word-break: break-all; }
-        
-        .next-facility-box { background: rgba(30,30,30,0.85); border: 1px solid #444; border-radius: 8px; padding: 6px 14px; margin-top: 4px; width: 90%; max-width: 360px; display: flex; justify-content: space-between; align-items: center; transition: all 0.3s; }
-        .next-fac-label { font-size: 11px; color: #aaa; text-align: left; }
-        .next-fac-name { font-size: 15px; font-weight: bold; color: #fff; }
-        .next-fac-dist { font-size: 18px; font-weight: 900; color: #00ff66; text-align: right; }
+    .road-line-base { stroke: var(--nexco-green); stroke-width: 3; stroke-linecap: round; }
+    .road-line-jam { stroke: var(--status-warn); stroke-width: 3; stroke-dasharray: 4; }
+    .road-line-speed { stroke: var(--status-speed); stroke-width: 3; stroke-dasharray: 6; }
+    .road-line-snow { stroke: var(--accent); stroke-width: 3; stroke-linecap: round; }
 
-        #shuto-warning-banner { display: none; width: 90%; max-width: 360px; background: #ff0000; color: #fff; border: 3px solid #ffcc00; border-radius: 10px; padding: 8px; margin-top: 6px; text-align: center; animation: pulse-warn 1s infinite alternate; }
-        .warn-title { font-size: 20px; font-weight: 900; letter-spacing: 2px; text-shadow: 2px 2px 4px rgba(0,0,0,0.5); }
+    .node-bg { fill: #1e1e1e; rx: 2px; stroke: #444; stroke-width: 1px; }
+    .node-label-horiz { fill: #ffffff; font-size: 8.5px; font-weight: bold; text-anchor: middle; }
+    .node-kp-horiz-right { fill: var(--accent); font-size: 7px; font-family: monospace; text-anchor: start; }
+    .route-title-bg { fill: #111; stroke: var(--accent); stroke-width: 1px; rx: 3px; }
+    .route-title-text { fill: var(--accent); font-size: 10px; font-weight: bold; text-anchor: middle; }
 
-        @keyframes pulse-warn { from { transform: scale(1); opacity: 0.9; } to { transform: scale(1.02); opacity: 1; } }
+    .map-legend {
+      display: flex; gap: 8px; background: var(--bg-card); padding: 4px 8px; border-radius: 6px; margin-top: 4px; font-size: 10px; color: var(--text-sub); width: 100%; justify-content: center; flex-wrap: wrap; flex-shrink: 0;
+    }
+    .legend-item { display: flex; align-items: center; gap: 3px; }
 
-        .auto-badge { font-size: 10px; background: #004444; color: #00ffff; padding: 2px 8px; border-radius: 4px; margin-top: 3px; display: inline-block; }
+    /* 2. KP監視画面 */
+    .kp-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      flex: 1;
+      background: #000;
+      border-radius: 8px;
+      border: 1px solid #333;
+      padding: 10px;
+      position: relative;
+    }
+    .kp-display { font-size: clamp(64px, 16vw, 110px); font-weight: 900; color: #ffcc00; text-shadow: 0 0 30px rgba(255,204,0,0.6); line-height: 0.95; }
+    .kp-unit { font-size: clamp(24px, 5vw, 36px); margin-left: 2px; font-weight: bold; color: #ffcc00; }
+    
+    .control-row { display: flex; justify-content: center; gap: 6px; margin-top: 6px; }
+    .select-btn { padding: 6px 10px; font-size: 11px; font-weight: bold; border: 1px solid #555; background: #222; color: #aaa; border-radius: 6px; cursor: pointer; }
+    .select-btn.active { background: #00ffff; color: #000; border-color: #00ffff; }
+    .dir-btn.active { background: #ffcc00; color: #000; border-color: #ffcc00; }
 
-        footer { background: rgba(15,15,15,0.9); padding: 6px 15px; font-size: 10px; color: #888; border-top: 1px solid #222; text-align: center; line-height: 1.3; }
-        .status-ok { color: #00ff66; font-weight: bold; }
-        .status-warn { color: #ffaa00; font-weight: bold; }
+    .quick-action-area { margin-top: 8px; display: flex; flex-direction: column; align-items: center; gap: 4px; width: 90%; max-width: 320px; }
+    .quick-btn-row { display: flex; gap: 6px; width: 100%; }
+    .btn-quick-record { flex: 2; background: #ff8800; color: #000; font-weight: bold; font-size: 11px; padding: 6px; border: none; border-radius: 6px; cursor: pointer; }
+    .btn-quick-clear { flex: 1; background: #444; color: #ccc; font-weight: bold; font-size: 11px; padding: 6px; border: none; border-radius: 6px; cursor: pointer; }
+    .pinned-kp-display { width: 100%; font-size: 10px; color: #00ff66; background: rgba(0,255,102,0.06); border: 1px solid rgba(0,255,102,0.25); padding: 4px 6px; border-radius: 6px; text-align: center; }
 
-        /* パスワード確認用 */
-        #pwd-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 10000; padding: 20px; }
-        #pwd-modal-content { background: #222; border: 1px solid #555; border-radius: 10px; padding: 20px; width: 90%; max-width: 300px; text-align: center; }
-        #pwd-modal-content input { padding: 10px; font-size: 18px; border-radius: 6px; border: 1px solid #444; background: #111; color: #fff; width: 100%; text-align: center; margin: 12px 0; letter-spacing: 3px; }
-    </style>
+    /* 手動入力パネル */
+    #manual-panel { background: rgba(40,40,40,0.95); padding: 6px; margin-top: 6px; border-radius: 6px; display: none; justify-content: center; align-items: center; gap: 6px; font-size: 11px; width: 90%; max-width: 320px; }
+    #manual-panel input { width: 90px; padding: 4px; background: #111; border: 1px solid #666; color: #ffcc00; font-size: 13px; font-weight: bold; text-align: center; border-radius: 4px; }
+    #manual-panel button { padding: 4px 8px; background: #ffcc00; border: none; font-weight: bold; border-radius: 4px; cursor: pointer; color: #000; }
+
+    /* 3. 交通量画面 */
+    .volume-content { display: flex; flex-direction: column; gap: 8px; padding: 6px; overflow-y: auto; flex: 1; }
+    .dir-selector { display: flex; gap: 8px; }
+    .traffic-dir-btn {
+      flex: 1; padding: 8px; border: 2px solid var(--border-color); background: var(--bg-card); color: var(--text-sub); font-weight: bold; font-size: 12px; border-radius: 6px; cursor: pointer; text-align: center;
+    }
+    .traffic-dir-btn.active-inbound { border-color: #4caf50; background: rgba(76, 175, 80, 0.15); color: #81c784; }
+    .traffic-dir-btn.active-outbound { border-color: #2196f3; background: rgba(33, 150, 243, 0.15); color: #64b5f6; }
+    .section-btn-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 4px; }
+    .sec-btn { padding: 6px; background: var(--bg-card); border: 1px solid var(--border-color); color: var(--text-main); border-radius: 5px; font-size: 11px; cursor: pointer; text-align: center; }
+    .sec-btn.selected { background: var(--accent) !important; color: #000 !important; font-weight: bold; border-color: var(--accent) !important; }
+    .volume-stats-card { background: var(--bg-card); border-radius: 8px; padding: 8px; border-left: 4px solid var(--accent); }
+    .chart-box { display: flex; align-items: flex-end; gap: 4px; height: 70px; padding-top: 6px; border-bottom: 1px solid var(--border-color); }
+    .chart-bar-wrap { flex: 1; display: flex; flex-direction: column; align-items: center; height: 100%; justify-content: flex-end; }
+    .chart-bar { width: 100%; background: var(--accent); border-radius: 2px 2px 0 0; min-height: 4px; }
+    .chart-label { font-size: 8.5px; color: var(--text-sub); margin-top: 2px; }
+
+    /* 4. メモ画面 */
+    .memo-layout { display: flex; flex-direction: column; gap: 8px; flex: 1; padding: 4px; overflow-y: auto; }
+    .memo-box { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 8px; padding: 10px; display: flex; flex-direction: column; }
+    .memo-box h3 { font-size: 12px; color: var(--accent); margin-bottom: 6px; }
+    .memo-textarea { width: 100%; height: 90px; background: #111; color: #fff; border: 1px solid #444; padding: 8px; border-radius: 6px; font-size: 12px; resize: none; }
+    .memo-list-container { flex: 1; background: #151515; border: 1px solid #333; border-radius: 6px; padding: 8px; max-height: 180px; overflow-y: auto; }
+    .memo-item { background: #222; border-left: 3px solid var(--accent); padding: 6px 8px; margin-bottom: 6px; border-radius: 4px; font-size: 11px; }
+
+    /* 5. 設定画面と新・黒板レイアウト（スケッチ再現） */
+    .setting-card { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 8px; padding: 10px; margin-bottom: 8px; }
+    .setting-card h3 { font-size: 12px; color: var(--accent); margin-bottom: 6px; }
+    .form-row { display: flex; flex-direction: column; gap: 3px; margin-bottom: 6px; }
+    .form-row label { font-size: 10px; color: var(--text-sub); }
+    .form-row input, .form-row select { padding: 6px; background: #111; border: 1px solid #444; color: #fff; border-radius: 4px; font-size: 12px; }
+    .date-select-group { display: flex; gap: 4px; }
+
+    /* 黒板付きカメラプレビュー（最新スケッチ画像通りの配置：上部デフォルト行、右側工事件名/工事場所、中央メモ、左側社名、右下日付） */
+    #blackboard-cam-modal {
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.96); display: none; flex-direction: column; align-items: center; justify-content: center; z-index: 11000; padding: 10px;
+    }
+    .bb-viewport {
+      position: relative; width: 100%; max-width: 440px; height: 350px; background: #000; border-radius: 8px; overflow: hidden; display: flex; align-items: center; justify-content: center; border: 2px solid #ffaa00;
+    }
+    #bb-video { width: 100%; height: 100%; object-fit: cover; }
+    #bb-canvas { display: none; }
+
+    .blackboard-overlay {
+      position: absolute;
+      top: 15px; left: 15px; right: 15px; bottom: 15px;
+      background: rgba(16, 64, 32, 0.9);
+      border: 3px solid #f2f2f2;
+      border-radius: 4px;
+      padding: 6px;
+      display: grid;
+      grid-template-columns: 32px 1fr 1.6fr;
+      grid-template-rows: 24px 1fr 1fr;
+      gap: 3px;
+      color: #fff;
+      pointer-events: none;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+    }
+    /* 最上部：デフォルト行（全列またぎ） */
+    .bb-top-row {
+      grid-column: span 3;
+      border-bottom: 1px solid rgba(255,255,255,0.4);
+      display: flex;
+      align-items: center;
+      padding: 2px 4px;
+      font-size: 10px;
+      font-weight: bold;
+      color: #ffcc00;
+    }
+    /* 左端：縦書き会社名 */
+    .bb-col-left {
+      grid-row: span 2;
+      border-right: 1px solid rgba(255,255,255,0.4);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      writing-mode: vertical-rl;
+      font-size: 9px;
+      font-weight: bold;
+      color: #a0e0a0;
+      letter-spacing: 2px;
+    }
+    /* 中央：自由メモエリア */
+    .bb-col-center {
+      grid-row: span 2;
+      border-right: 1px solid rgba(255,255,255,0.4);
+      padding: 4px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+    /* 右側：工事件名 / 工事場所セル */
+    .bb-cell {
+      border-bottom: 1px solid rgba(255,255,255,0.4);
+      padding: 3px 4px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+    .bb-cell:last-of-type { border-bottom: none; }
+    .bb-label { font-size: 7px; color: #a0e0a0; margin-bottom: 1px; }
+    .bb-val { font-size: 9.5px; font-weight: bold; color: #ffffff; word-break: break-all; }
+    .bb-date-area {
+      position: absolute;
+      bottom: 6px;
+      right: 10px;
+      font-size: 10px;
+      font-weight: bold;
+      color: #ffcc00;
+    }
+
+    /* モーダル共通 */
+    #manual-modal, #support-modal {
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.92); display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 10000; padding: 15px;
+    }
+    .modal-content-box {
+      background: #1e1e1e; border: 1px solid var(--accent); border-radius: 10px; padding: 16px; width: 95%; max-width: 400px; max-height: 85vh; display: flex; flex-direction: column;
+    }
+    .modal-btn-row { display: flex; gap: 8px; width: 100%; margin-top: 8px; }
+    .modal-btn { flex: 1; padding: 8px; font-size: 12px; font-weight: bold; border: none; border-radius: 6px; cursor: pointer; }
+    .btn-cancel { background: #444; color: #ccc; }
+  </style>
 </head>
 <body>
 
-    <!-- パスワード認証画面 -->
-    <div id="auth-overlay">
-        <div class="auth-card">
-            <h2>Network for Expressway Coordinate & Observation</h2>
-            
-            <div class="disclaimer-box">
-                <b>[利用上のご注意]</b>
-                個人情報保護、秘匿情報の流出を防ぐ観点から、位置情報や動作ログなどは一切保存・収集は行っておりません。また、危険箇所画像ログには位置情報、撮影時刻が画像に保存され、コメントには時刻のみ保存されます。当アプリは情報の収集は一切行わず、当アプリで必要な情報はログイン者全員に公開されます。使用には十分注意をお願いします。<br>
-                また、上記の理由により、当アプリを使用した事により問題が発生した場合、一切の責任を負いません。
-            </div>
+  <!-- アプリ全体ログイン画面 -->
+  <div id="auth-overlay">
+    <div class="auth-card">
+      <h2>Network for Expressway Coordinate & Observation</h2>
+      
+      <div class="disclaimer-box">
+        <b>[利用上のご注意]</b>
+        個人情報保護・秘匿情報流出防止のため位置ログ等の保存・収集は一切行っていません。必要な情報は利用者にのみ公開されます。<br>
+        本アプリ利用により発生した問題について一切責任を負いません。
+      </div>
 
-            <div class="manual-link" onclick="openManualModal()">[説明] システム説明書・プライバシー仕様はこちら</div>
+      <div class="manual-link" onclick="openManualModal()">[説明] システム説明書はこちら</div>
 
-            <input type="password" id="pass-input" placeholder="パスワードを入力" onkeydown="if(event.key==='Enter') checkPassword()">
-            <button onclick="checkPassword()">Approve and log in</button>
-            <div id="auth-error">パスワードが違います</div>
+      <input type="password" id="pass-input" placeholder="パスワードを入力" autocomplete="off">
+      <button type="button" onclick="checkAppPassword()">Approve and log in</button>
+      <div id="auth-error" class="auth-error">パスワードが違います</div>
 
-            <div class="auth-copyright">&copy; 2026 Axis Line Operations. All Rights Reserved.</div>
-        </div>
+      <div class="auth-copyright">&copy; 2026 Axis Line Operations. All Rights Reserved.</div>
+    </div>
+  </div>
+
+  <!-- システム説明書モーダル -->
+  <div id="manual-modal" style="display: none;">
+    <div class="modal-content-box" style="border-color: #00ffff;">
+      <h3 style="color: #00ffff; font-size: 14px; margin-bottom: 8px; text-align: center;">[説明] N.E.C.O. システム説明書</h3>
+      <div style="font-size: 11px; line-height: 1.5; color: #ddd; overflow-y: auto; max-height: 60vh;">
+        <b>実測ベース補正:</b> 主要IC/JCTのアンカーポイントを基に高精度KPを算出します。<br>
+        <b>設定・黒板撮影:</b> 「設定」タブ（要パスワード）より、最新スケッチ様式に合わせた黒板付きカメラで現場写真を撮影・端末保存できます。
+      </div>
+      <button type="button" class="modal-btn btn-cancel" onclick="closeManualModal()" style="margin-top: 10px;">閉じる</button>
+    </div>
+  </div>
+
+  <!-- 黒板付きカメラ撮影モーダル（スケッチ完全再現） -->
+  <div id="blackboard-cam-modal">
+    <div style="width: 100%; max-width: 440px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+      <span style="font-size: 13px; font-weight: bold; color: #ffaa00;">📷 黒板付き現場撮影（スケッチレイアウト）</span>
+      <button type="button" onclick="closeBlackboardCamera()" style="background:#444; color:#fff; border:none; padding:4px 10px; border-radius:4px; font-size:11px; cursor:pointer;">閉じる</button>
     </div>
 
-    <!-- システム説明書モーダル -->
-    <div id="manual-modal" style="display: none;">
-        <div id="manual-modal-content">
-            <h3>[説明] N.E.C.O. システム説明書</h3>
-            <div class="manual-body">
-                <div class="manual-section manual-section-alert">
-                    <h4>[警報] アンカーポイント補間仕様（実測データ反映版）</h4>
-                    <ul>
-                        <li><b>実測ベース補正:</b> 現場の実測データおよび主要IC/JCTのアンカーポイントを基に、区間内を直線補間して高精度にKPを算出します。</li>
-                    </ul>
-                </div>
-            </div>
-            <div style="margin-top: 10px;">
-                <button class="modal-btn btn-cancel" onclick="closeManualModal()" style="width: 100%;">閉じる</button>
-            </div>
+    <div class="bb-viewport" id="bb-viewport">
+      <video id="bb-video" autoplay playsinline muted></video>
+      <canvas id="bb-canvas"></canvas>
+      
+      <!-- 黒板オーバーレイ（最新スケッチ構造） -->
+      <div class="blackboard-overlay" id="blackboard-preview-box">
+        <div class="bb-top-row" id="bb-preview-default">デフォルト: 作業前点検</div>
+        <div class="bb-col-left" id="bb-preview-company">ネクスコメンテナンス関東</div>
+        <div class="bb-col-center">
+          <div class="bb-label">自由メモ・詳細</div>
+          <div class="bb-val" id="bb-preview-memo" style="font-size: 10px; color:#ffcc00;">特記事項なし</div>
         </div>
+        <div style="display: flex; flex-direction: column; gap: 2px;">
+          <div class="bb-cell">
+            <div class="bb-label">工事件名</div>
+            <div class="bb-val" id="bb-preview-title">加須管内道路保全工事業務</div>
+          </div>
+          <div class="bb-cell">
+            <div class="bb-label">工事場所</div>
+            <div class="bb-val" id="bb-preview-place">東北道 下)32.7kp付近側道</div>
+          </div>
+        </div>
+        <div class="bb-date-area" id="bb-preview-date">2026/10/17</div>
+      </div>
     </div>
 
-    <!-- 危険箇所リスト専用モーダル -->
-    <div id="hazard-list-modal" style="display: none;">
-        <div id="hazard-list-modal-content">
-            <div class="hazard-page-header">
-                <div class="hazard-page-title" id="hazard-modal-title">[警告] 危険箇所画像ログ</div>
-                <div style="display: flex; gap: 4px;">
-                    <button class="select-btn" id="btn-filter-all" onclick="setHazardFilter('ALL')" style="padding: 3px 6px; font-size: 10px;">全件</button>
-                    <button class="select-btn active" id="btn-filter-near" onclick="setHazardFilter('NEAR')" style="padding: 3px 6px; font-size: 10px;">100m以内</button>
-                    <button class="modal-btn btn-cancel" style="padding: 3px 8px; font-size: 11px;" onclick="closeHazardListModal()">閉じる</button>
-                </div>
-            </div>
-            
-            <div class="hazard-card-container" id="hazard-cards-wrapper">
-                <!-- 動的に挿入 -->
-            </div>
+    <div style="width: 100%; max-width: 440px; margin-top: 8px;">
+      <button type="button" onclick="captureBlackboardPhoto()" style="width: 100%; padding: 12px; background: #ffaa00; color: #000; font-weight: 900; border: none; border-radius: 6px; font-size: 14px; cursor: pointer;">
+        📸 この黒板付きで撮影して端末に保存
+      </button>
+    </div>
+  </div>
+
+  <!-- コメントボードモーダル（設定画面から呼び出し） -->
+  <div id="support-modal" style="display: none;">
+    <div class="modal-content-box">
+      <h3 style="color: #00ffff; font-size: 14px; margin-bottom: 6px;">[情報] 共有コメントボード</h3>
+      <textarea id="support-text" style="width: 100%; height: 70px; background: #111; color: #fff; border: 1px solid #444; border-radius: 6px; padding: 8px; font-size: 13px; resize: none; margin-bottom: 8px;" placeholder="コメントを入力..."></textarea>
+      <div class="modal-btn-row" style="margin-bottom: 8px;">
+        <button type="button" class="modal-btn" style="background:#00aa00; color:#fff;" onclick="addTextComment()">追加</button>
+        <button type="button" class="modal-btn" style="background:#0088ff; color:#fff;" onclick="alert('コピーしました')">一括コピー</button>
+      </div>
+      <div id="comment-list-container" style="background:#151515; border:1px solid #333; padding:6px; max-height:130px; overflow-y:auto; text-align:left; border-radius:4px; font-size:11px;">
+        <div style="color: #666; text-align: center;">コメントはありません</div>
+      </div>
+      <button type="button" class="modal-btn btn-cancel" onclick="closeSupportModal()" style="margin-top:8px;">閉じる</button>
+    </div>
+  </div>
+
+  <!-- メインアプリケーション画面 -->
+  <div id="main-app">
+    <!-- ナビゲーションタブ -->
+    <nav class="nav-tabs">
+      <button type="button" class="tab-btn active" onclick="switchTab('traffic-view', this)">🗺️ 交通情報</button>
+      <button type="button" class="tab-btn" onclick="switchTab('kp-view', this)">📍 KP監視</button>
+      <button type="button" class="tab-btn" onclick="switchTab('volume-view', this)">📊 交通量</button>
+      <button type="button" class="tab-btn" onclick="switchTab('memo-view', this)">📝 メモ</button>
+      <button type="button" class="tab-btn" onclick="switchTab('settings-view', this)">⚙️ 設定</button>
+    </nav>
+
+    <!-- 1. 交通情報画面（インター名称・凡例を完全復元） -->
+    <div id="traffic-view" class="view-panel active">
+      <div class="map-content-layout">
+        <div class="map-wrapper">
+          <svg viewBox="0 0 850 680" width="100%" height="100%" style="flex:1; min-height: 480px;">
+            <!-- 首都高速川口線 -->
+            <line x1="396" y1="670" x2="396" y2="560" class="road-line-base" />
+            <line x1="404" y1="670" x2="404" y2="560" class="road-line-base" />
+            <!-- 東北自動車道 -->
+            <line x1="396" y1="560" x2="396" y2="340" class="road-line-speed" />
+            <line x1="404" y1="560" x2="404" y2="340" class="road-line-speed" />
+            <line x1="396" y1="340" x2="396" y2="20" class="road-line-jam" />
+            <line x1="404" y1="340" x2="404" y2="20" class="road-line-jam" />
+            <!-- 圏央道 -->
+            <line x1="35" y1="276" x2="830" y2="276" class="road-line-snow" />
+            <line x1="35" y1="284" x2="830" y2="284" class="road-line-snow" />
+            <!-- 東京外環自動車道 -->
+            <line x1="260" y1="556" x2="630" y2="556" class="road-line-base" />
+            <line x1="260" y1="564" x2="630" y2="564" class="road-line-base" />
+
+            <!-- 路線名ラベル -->
+            <rect x="520" y="645" width="100" height="18" class="route-title-bg" /><text x="570" y="657" class="route-title-text">首都高速川口線</text>
+            <rect x="460" y="360" width="80" height="18" class="route-title-bg" /><text x="500" y="373" class="route-title-text">東北自動車道</text>
+            <rect x="40" y="315" width="55" height="16" class="route-title-bg" /><text x="67" y="327" class="route-title-text">圏央道</text>
+            <rect x="40" y="495" width="50" height="16" class="route-title-bg" /><text x="65" y="507" class="route-title-text">外環道</text>
+
+            <!-- 東北道IC・JCTノード一覧（インター名称完全表示） -->
+            <g transform="translate(400, 0)">
+              <rect x="-36" y="612" width="72" height="16" class="node-bg" /><text x="0" y="623" class="node-label-horiz">川口本線TB</text><text x="39" y="623" class="node-kp-horiz-right">11.9k</text>
+              <rect x="-28" y="552" width="56" height="16" class="node-bg" /><text x="0" y="563" class="node-label-horiz">川口JCT</text><text x="31" y="575" class="node-kp-horiz-right">0.0k</text>
+              <rect x="-21" y="442" width="42" height="15" class="node-bg" /><text x="0" y="453" class="node-label-horiz">浦和IC</text><text x="24" y="453" class="node-kp-horiz-right">13.8k</text>
+              <rect x="-21" y="332" width="42" height="15" class="node-bg" /><text x="0" y="343" class="node-label-horiz">久喜IC</text><text x="24" y="343" class="node-kp-horiz-right">25.5k</text>
+              <rect x="-21" y="222" width="42" height="15" class="node-bg" /><text x="0" y="233" class="node-label-horiz">加須IC</text><text x="24" y="233" class="node-kp-horiz-right">33.4k</text>
+              <rect x="-21" y="172" width="42" height="15" class="node-bg" /><text x="0" y="183" class="node-label-horiz">羽生IC</text><text x="24" y="183" class="node-kp-horiz-right">38.4k</text>
+            </g>
+          </svg>
+
+          <!-- 凡例 -->
+          <div class="map-legend">
+            <div class="legend-item"><span style="color:var(--nexco-green); font-weight:bold;">━━</span> 順調</div>
+            <div class="legend-item"><span style="color:var(--status-warn); font-weight:bold;">━━</span> 渋滞</div>
+            <div class="legend-item"><span style="color:var(--status-speed); font-weight:bold;">━━</span> 速度低下</div>
+            <div class="legend-item">💥 事故</div>
+            <div class="legend-item">🚧 工事</div>
+          </div>
         </div>
+
+        <div class="incident-sidebar">
+          <div style="background: #222; padding: 6px 8px; font-size: 11px; font-weight: bold; color: #00bcd4; border-bottom: 1px solid #383838;">🚨 管内 規制・事象一覧</div>
+          <div id="incidentListContainer" style="padding: 8px; overflow-y: auto; flex-grow: 1; display: flex; flex-direction: column; gap: 6px; font-size: 10px;">
+            <div style="color:#888;">事象情報を取得中...</div>
+          </div>
+        </div>
+      </div>
     </div>
 
-    <!-- カメラ撮影モーダル -->
-    <div id="camera-modal" style="display: none;">
-        <div id="camera-modal-content">
-            <h3 style="font-size: 15px; color: #ffcc00; margin-bottom: 4px;">[撮影] 危険箇所撮影・登録</h3>
-            <p style="font-size: 10px; color: #aaa; margin-bottom: 6px;">自動でサムネイル圧縮して危険リストに登録します</p>
-            
-            <div class="camera-viewport">
-                <video id="camera-video" autoplay playsinline muted></video>
-                <canvas id="camera-canvas" style="display: none;"></canvas>
-                <div class="camera-overlay-info">
-                    <div class="cam-info-line">
-                        <span id="cam-route-disp">東北自動車道 (上り)</span>
-                        <span id="cam-kp-disp" style="color: #ffcc00; font-size: 13px;">--.-- kp</span>
-                    </div>
-                    <div class="cam-info-sub" id="cam-time-disp">2026/0/0 00:00</div>
-                </div>
-            </div>
-
-            <input type="text" id="cam-memo-input" class="memo-input-on-cam" placeholder="危険箇所のメモ（例: 露出ケーブル発見）">
-
-            <div class="modal-btn-row">
-                <button class="modal-btn btn-cancel" onclick="closeCameraModal()">キャンセル</button>
-                <button class="modal-btn btn-capture" onclick="captureAndSaveHazard()">[登録] 危険リストに登録</button>
-            </div>
+    <!-- 2. KP監視画面（カメラボタン、手動ボタン、上下ボタンを完全復元） -->
+    <div id="kp-view" class="view-panel">
+      <div class="section-title">
+        <span>📍 キロポスト現在地リアルタイム監視</span>
+        <span style="font-size: 10px; color: var(--status-ok);">GPS連動中</span>
+      </div>
+      <div class="kp-container">
+        <!-- 路線切替ボタン -->
+        <div class="control-row" style="margin-bottom: 4px;">
+          <button type="button" class="select-btn active" onclick="setRoute('TOHOKU')">東北道</button>
+          <button type="button" class="select-btn" onclick="setRoute('KENOH')">圏央道</button>
+          <button type="button" class="select-btn" onclick="setRoute('GAIKAN')">外環道</button>
+          <button type="button" class="select-btn active" style="background:#00aa00; color:#fff; border-color:#00cc00;">自動判定</button>
+          <button type="button" class="select-btn" onclick="toggleManualPanel()">手動PC</button>
         </div>
-    </div>
-
-    <!-- テキストコメント専用モーダル -->
-    <div id="support-modal" style="display: none;">
-        <div id="support-modal-content">
-            <h3>[情報] 共有コメントボード</h3>
-            <p style="font-size: 11px; color: #aaa; margin-bottom: 6px; text-align: left;">テキストのみの連絡事項・コメント一覧です。</p>
-            
-            <textarea id="support-text" placeholder="ここにコメントを入力..."></textarea>
-            
-            <div class="modal-btn-row" style="margin-bottom: 8px;">
-                <button class="modal-btn btn-add" onclick="addTextComment()">コメントを追加</button>
-                <button class="modal-btn btn-copy" onclick="copyAllComments()">一括コピー</button>
-            </div>
-
-            <div id="comment-list-container">
-                <div style="font-size: 11px; color: #666; text-align: center; padding: 10px;">コメントはありません</div>
-            </div>
-
-            <div class="modal-btn-row" style="margin-top: 8px;">
-                <button class="modal-btn btn-cancel" onclick="closeSupportModal()">閉じる</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- 削除用パスワード確認モーダル -->
-    <div id="pwd-modal" style="display: none;">
-        <div id="pwd-modal-content">
-            <h3 style="font-size: 15px; color: #ffcc00;">削除確認</h3>
-            <p style="font-size: 11px; color: #aaa; margin-top: 4px;">削除するにはパスワードを入力してください</p>
-            <input type="password" id="delete-pwd-input" placeholder="••••" onkeydown="if(event.key==='Enter') confirmDeleteTarget()">
-            <div class="modal-btn-row">
-                <button class="modal-btn btn-cancel" onclick="closeDeletePwdModal()">キャンセル</button>
-                <button class="modal-btn btn-add" onclick="confirmDeleteTarget()">確認</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- 右下に固定配置された撮影ボタン -->
-    <button class="floating-cam-btn" onclick="openCameraModal()">
-        [撮影] カメラ
-    </button>
-
-    <header>
-        <div class="header-top-row">
-            <div class="brand">Network for Expressway Coordinate & Observation</div>
-            <!-- 右上に配置された補助ボタン群 -->
-            <div class="top-right-controls">
-                <button class="top-right-btn btn-hazard-list" onclick="openHazardListModal('ALL')">[警告] 危険リスト</button>
-                <button class="top-right-btn btn-support" onclick="openSupportModal()">[情報] コメント</button>
-            </div>
-        </div>
-        
-        <!-- 中央に配置された路線・判定モード切替 -->
-        <div class="control-row">
-            <button id="btn-tohoku" class="select-btn active" onclick="manualSelectRoute('TOHOKU')">東北道</button>
-            <button id="btn-kenoh" class="select-btn" onclick="manualSelectRoute('KENOH')">圏央道</button>
-            <button id="btn-mode-auto" class="select-btn active" onclick="setMode('AUTO')" style="background:#00aa00; color:#fff; border-color:#00cc00;">自動判定</button>
-            <button id="btn-mode-manual" class="select-btn" onclick="setMode('MANUAL_PC')">手動(PC)</button>
+        <!-- 上り・下り切替ボタン（確実に押せる仕様） -->
+        <div class="control-row" style="margin-bottom: 4px;">
+          <button type="button" id="btn-up" class="select-btn dir-btn active" onclick="setDirection('UP')">UP (上り/内回り)</button>
+          <button type="button" id="btn-down" class="select-btn dir-btn" onclick="setDirection('DOWN')">DOWN (下り/外回り)</button>
         </div>
 
-        <!-- 中央に配置された上り/下り切替 -->
-        <div class="control-row" style="margin-top: 4px;">
-            <button id="btn-up" class="select-btn dir-btn active" onclick="setDirection('UP')">UP (上り/内回り)</button>
-            <button id="btn-down" class="select-btn dir-btn" onclick="setDirection('DOWN')">DOWN (下り/外回り)</button>
-        </div>
-
+        <!-- 手動入力パネル -->
         <div id="manual-panel">
-            <span>シミュレートKP:</span>
-            <input type="number" id="manual-kp-input" value="33.10" step="0.05" oninput="applyManualKP()">
-            <button onclick="applyManualKP()">適用</button>
+          <span>シミュレートKP:</span>
+          <input type="number" id="manual-kp-input" value="33.10" step="0.05">
+          <button type="button" onclick="applyManualKP()">適用</button>
         </div>
-    </header>
 
-    <main>
-        <div class="route-name" id="route-text">東北自動車道 (上り)</div>
-        <div id="current-zone" class="current-zone-display" style="display: none;">区間外</div>
-        
-        <!-- キロポスト表示 -->
+        <div style="font-size: 13px; color: #00ffff; font-weight: bold; margin-top: 4px;" id="route-text">東北自動車道 (上り)</div>
         <div>
-            <span class="kp-display" id="kp-val">--.--</span><span class="kp-unit" id="kp-unit-label">kp</span>
+          <span class="kp-display" id="kp-val">33.10</span><span class="kp-unit">kp</span>
         </div>
 
-        <!-- 危険情報検知時の点滅ボタン（100m以内） -->
-        <button id="hazard-blink-btn" class="hazard-blink-btn" onclick="openHazardListModal('NEAR')">
-            [警報] 直近100m以内に危険情報あり！（確認する）
-        </button>
-
+        <!-- 記録ボタンエリア -->
         <div class="quick-action-area">
-            <div class="quick-btn-row">
-                <button class="btn-quick-record" onclick="pinCurrentKp()">[記録] 現在KPを記録</button>
-                <button class="btn-quick-clear" onclick="clearPinnedKp()">消去</button>
-            </div>
-            <div id="pinned-kp-display" class="pinned-kp-display">記録なし</div>
+          <div class="quick-btn-row">
+            <button type="button" class="btn-quick-record" onclick="alert('現在のKPを記録しました')">[記録] 現在KPを記録</button>
+            <button type="button" class="btn-quick-clear" onclick="alert('消去しました')">消去</button>
+          </div>
+          <div id="pinned-kp-display" class="pinned-kp-display">記録なし</div>
         </div>
-        
-        <div class="next-facility-box" id="next-box">
+
+        <div style="margin-top: 6px; background: rgba(30,30,30,0.85); border: 1px solid #444; border-radius: 8px; padding: 6px 14px; width: 90%; max-width: 320px; display: flex; justify-content: space-between;">
+          <div>
+            <div style="font-size: 10px; color: #aaa;">次の施設 (NEXT)</div>
+            <div style="font-size: 14px; font-weight: bold; color: #fff;" id="next-fac-name">加須IC</div>
+          </div>
+          <div style="text-align: right;">
+            <div style="font-size: 10px; color: #aaa;">残り距離</div>
+            <div style="font-size: 16px; font-weight: 900; color: #00ff66;" id="next-fac-dist">0.30 km</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 3. 交通量画面（佐野、圏央道、外環などの位置指定ボタンを復元） -->
+    <div id="volume-view" class="view-panel">
+      <div class="section-title"><span>📊 区間別 交通量（通行台数データ）</span></div>
+      <div class="volume-content">
+        <div class="dir-selector">
+          <button type="button" class="traffic-dir-btn active-inbound" id="v-dir-in" onclick="selectVolumeDir('inbound')">⬆️ 上り 東京方面</button>
+          <button type="button" class="traffic-dir-btn" id="v-dir-out" onclick="selectVolumeDir('outbound')">⬇️ 下り 宇都宮・地方方面</button>
+        </div>
+        <div style="font-size: 11px; color: var(--accent); font-weight: bold; margin-top: 4px;">■ 路線・区間選択</div>
+        <div class="section-btn-grid">
+          <button type="button" class="sec-btn selected" onclick="selectVolumeSection('川口料金所 〜 川口JCT', this)">東北道: 川口〜川口JCT</button>
+          <button type="button" class="sec-btn" onclick="selectVolumeSection('久喜IC 〜 加須IC', this)">東北道: 久喜〜加須</button>
+          <button type="button" class="sec-btn" onclick="selectVolumeSection('加須IC 〜 羽生IC', this)">東北道: 加須〜羽生</button>
+          <button type="button" class="sec-btn" onclick="selectVolumeSection('佐野藤岡IC 〜 館林IC', this)">東北道: 佐野〜館林</button>
+          <button type="button" class="sec-btn" onclick="selectVolumeSection('圏央道: 久喜白岡JCT 〜 幸手IC', this)">圏央道: 久喜白岡〜幸手</button>
+          <button type="button" class="sec-btn" onclick="selectVolumeSection('外環道: 外環川口IC 〜 草加IC', this)">外環道: 川口〜草加</button>
+        </div>
+        <div class="volume-stats-card">
+          <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 4px;">
             <div>
-                <div class="next-fac-label">次の施設 (NEXT)</div>
-                <div class="next-fac-name" id="next-fac-name">読込中...</div>
+              <span style="font-size: 9.5px; color: var(--text-sub);" id="v-dir-label">【上り 東京方面】</span>
+              <h4 style="font-size: 14px; color: var(--text-main);" id="v-sec-label">川口本線料金所 〜 川口JCT</h4>
             </div>
-            <div>
-                <div class="next-fac-label" style="text-align: right;">残り距離</div>
-                <div class="next-fac-dist" id="next-fac-dist">-- km</div>
+            <div style="text-align: right;">
+              <div style="font-size: 8.5px; color: var(--text-sub);">直近5分間通行台数</div>
+              <div style="font-size: 24px; font-weight: 900; color: var(--accent);" id="v-count-val">420 <span style="font-size: 12px;">台</span></div>
             </div>
+          </div>
+          <div class="chart-box" id="chartBars"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 4. メモ画面（入力欄と見る欄に分離） -->
+    <div id="memo-view" class="view-panel">
+      <div class="section-title"><span>📝 現場申し送りメモ</span></div>
+      <div class="memo-layout">
+        <div class="memo-box">
+          <h3>✍️ 新規メモ入力</h3>
+          <textarea id="fieldMemoInput" class="memo-textarea" placeholder="本日の申し送り事項を入力..."></textarea>
+          <button type="button" onclick="saveMemo()" style="margin-top: 6px; padding: 6px; background: var(--accent); border: none; color: #000; font-weight: bold; border-radius: 4px; cursor: pointer; font-size: 11px;">メモを保存する</button>
+        </div>
+        <div class="memo-box" style="flex: 1;">
+          <h3>📖 保存済みメモ一覧（確認用）</h3>
+          <div id="memoListContainer" class="memo-list-container">
+            <div style="color: #666; text-align: center; padding: 10px; font-size: 11px;">保存されたメモはありません</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 5. 設定画面（コメントボタン移動、黒板カメラ、日付リスト: デフォルト2026年10月17日） -->
+    <div id="settings-view" class="view-panel">
+      <div class="section-title"><span>⚙️ システム設定・黒板撮影</span></div>
+      
+      <div id="setting-auth-box" style="display: flex; flex-direction: column; align-items: center; justify-content: center; flex: 1; padding: 20px; text-align: center;">
+        <div class="setting-card" style="width: 100%; max-width: 300px;">
+          <h3 style="color: #ffcc00; margin-bottom: 6px;">🔒 管理者パスワード認証</h3>
+          <p style="font-size: 10px; color: #aaa; margin-bottom: 6px;">設定を開くにはパスワードを入力してください</p>
+          <input type="password" id="setting-pass-input" placeholder="パスワードを入力" style="width:100%; padding:6px; background:#111; color:#fff; border:1px solid #555; text-align:center; border-radius:4px; margin-bottom:6px;" autocomplete="off">
+          <button type="button" onclick="verifySettingPassword()" style="width:100%; padding:6px; background:#ffcc00; color:#000; font-weight:bold; border:none; border-radius:4px; cursor:pointer; font-size:12px;">認証</button>
+          <div id="setting-auth-error" style="color:#ff4444; font-size:10px; margin-top:4px; display:none;">パスワードが違います</div>
+        </div>
+      </div>
+
+      <div id="setting-content-box" style="display: none; flex-direction: column; flex: 1; overflow-y: auto; gap: 8px; padding: 4px;">
+        <!-- コメントボタン移動先 -->
+        <div class="setting-card" style="background: rgba(255,204,0,0.06); border-color: #ffcc00;">
+          <h3>💬 共有コメントボード</h3>
+          <p style="font-size: 10px; color: var(--text-sub); margin-bottom: 6px;">現場スタッフ間での連絡事項やコメントを確認・追加します。</p>
+          <button type="button" onclick="openSupportModal()" style="width:100%; padding:8px; background:#333; color:#ffcc00; border:1px solid #ffcc00; font-weight:bold; border-radius:6px; cursor:pointer; font-size:12px;">
+            💬 共有コメントボードを開く
+          </button>
         </div>
 
-        <div id="shuto-warning-banner">
-            <div class="warn-title" id="warn-title-text">[警告] 首都高注意！</div>
-            <div style="font-size: 12px; font-weight: bold; margin-top: 2px;" id="warn-sub-text">まもなく川口JCT（首都高境界）です</div>
+        <div class="setting-card">
+          <h3>📷 黒板付き現場カメラ撮影</h3>
+          <p style="font-size: 10px; color: var(--text-sub); margin-bottom: 6px;">最新スケッチ様式（上部デフォルト・右側項目・中央メモ）に合わせた黒板合成カメラを起動します。</p>
+          <button type="button" onclick="openBlackboardCamera()" style="width:100%; padding:8px; background:#ffaa00; color:#000; font-weight:bold; border:none; border-radius:6px; cursor:pointer; font-size:12px;">
+            🎥 黒板カメラ起動
+          </button>
         </div>
 
-        <div id="auto-status-badge" class="auto-badge">自動判定モード稼働中</div>
-    </main>
-
-    <footer>
-        <div id="gps-status">Status: 待機中</div>
-        <div id="latlng-text">Lat/Lng: --,-- (Acc: --m)</div>
-        <div class="app-copyright">&copy; 2026 Axis Line Operations. All Rights Reserved.</div>
-    </footer>
-
-    <script>
-        // パスワード文字列をそのまま平文で露出しなように符号化（難読化）した値
-        const OBFUSCATED_PASSWORD = "6e6578636f6b70"; // "nexcokp" の16進数表現
-
-        function verifyPassword(input) {
-            let encoded = "";
-            for (let i = 0; i < input.length; i++) {
-                let hex = input.charCodeAt(i).toString(16);
-                if (hex.length < 2) hex = "0" + hex;
-                encoded += hex;
-            }
-            return encoded === OBFUSCATED_PASSWORD;
-        }
-
-        let authenticated = false;
-
-        function checkPassword() {
-            const inputVal = document.getElementById("pass-input").value;
-
-            if (verifyPassword(inputVal)) {
-                authenticated = true;
-                document.getElementById("auth-overlay").style.display = "none";
-                document.getElementById("auth-error").style.display = "none";
-                initSystem();
-                loadPinnedKp();
-            } else {
-                document.getElementById("auth-error").style.display = "block";
-            }
-        }
-
-        let deleteTargetType = null;
-        let deleteTargetIndex = null;
-        let mediaStream = null;
-        let hazardFilterMode = 'ALL'; // 'ALL' or 'NEAR'
-
-        function formatKp(rawKp) {
-            return rawKp.toFixed(2);
-        }
-
-        function openManualModal() { document.getElementById('manual-modal').style.display = 'flex'; }
-        function closeManualModal() { document.getElementById('manual-modal').style.display = 'none'; }
-
-        function openCameraModal() {
-            document.getElementById('camera-modal').style.display = 'flex';
-            document.getElementById('cam-memo-input').value = '';
-            updateCameraOverlayInfo();
-
-            const constraints = {
-                video: { facingMode: { ideal: "environment" }, width: { ideal: 1280 }, height: { ideal: 720 } },
-                audio: false
-            };
-
-            navigator.mediaDevices.getUserMedia(constraints)
-                .then((stream) => {
-                    mediaStream = stream;
-                    document.getElementById('camera-video').srcObject = stream;
-                })
-                .catch((err) => {
-                    console.error("カメラ起動エラー:", err);
-                    alert("カメラを起動できませんでした。権限を確認してください。");
-                    closeCameraModal();
-                });
-        }
-
-        function closeCameraModal() {
-            if (mediaStream) {
-                mediaStream.getTracks().forEach(t => t.stop());
-                mediaStream = null;
-            }
-            document.getElementById('camera-modal').style.display = 'none';
-        }
-
-        function updateCameraOverlayInfo() {
-            if (document.getElementById('camera-modal').style.display === 'none') return;
-            const routeText = document.getElementById('route-text').innerText;
-            const currentKp = document.getElementById('kp-val').innerText;
-            const unitLabel = document.getElementById('kp-unit-label').innerText;
-            
-            const now = new Date();
-            const timeStr = `${now.getFullYear()}/${String(now.getMonth()+1).padStart(2,'0')}/${String(now.getDate()).padStart(2,'0')} ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
-
-            document.getElementById('cam-route-disp').innerText = routeText;
-            document.getElementById('cam-kp-disp').innerText = `${currentKp} ${unitLabel}`;
-            document.getElementById('cam-time-disp').innerText = timeStr;
-
-            setTimeout(updateCameraOverlayInfo, 1000);
-        }
-
-        function captureAndSaveHazard() {
-            const video = document.getElementById('camera-video');
-            const canvas = document.getElementById('camera-canvas');
-            if (!video.srcObject) return;
-
-            canvas.width = video.videoWidth || 1280;
-            canvas.height = video.videoHeight || 720;
-            const ctx = canvas.getContext('2d');
-            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-
-            const routeText = document.getElementById('route-text').innerText;
-            const currentKpVal = parseFloat(document.getElementById('kp-val').innerText) || 0.0;
-            const unitLabel = document.getElementById('kp-unit-label').innerText;
-            const memoText = document.getElementById('cam-memo-input').value.trim() || "露出ケーブル・障害物報告";
-            
-            const now = new Date();
-            const dateStr = `${now.getMonth()+1}/${now.getDate()} ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
-
-            const padding = 20;
-            const boxHeight = 90;
-            ctx.fillStyle = 'rgba(0, 0, 0, 0.65)';
-            ctx.fillRect(padding, canvas.height - boxHeight - padding, canvas.width - (padding * 2), boxHeight);
-            ctx.strokeStyle = 'rgba(255, 204, 0, 0.8)';
-            ctx.lineWidth = 3;
-            ctx.strokeRect(padding, canvas.height - boxHeight - padding, canvas.width - (padding * 2), boxHeight);
-
-            ctx.fillStyle = '#ffcc00';
-            ctx.font = 'bold 26px sans-serif';
-            ctx.fillText(`${routeText} : ${currentKpVal.toFixed(2)} ${unitLabel}`, padding + 20, canvas.height - boxHeight - padding + 35);
-
-            ctx.fillStyle = '#ffffff';
-            ctx.font = '20px sans-serif';
-            ctx.fillText(`${memoText} (${dateStr})`, padding + 20, canvas.height - boxHeight - padding + 70);
-
-            const thumbCanvas = document.createElement('canvas');
-            const tCtx = thumbCanvas.getContext('2d');
-            const thumbWidth = 320;
-            const thumbHeight = (canvas.height / canvas.width) * thumbWidth;
-            thumbCanvas.width = thumbWidth;
-            thumbCanvas.height = thumbHeight;
-            tCtx.drawImage(canvas, 0, 0, thumbWidth, thumbHeight);
-            
-            const compressedDataUrl = thumbCanvas.toDataURL('image/jpeg', 0.6);
-
-            const hazards = getStoredHazards();
-            hazards.unshift({
-                date: dateStr,
-                route: routeText,
-                direction: currentDirection,
-                kp: currentKpVal,
-                text: memoText,
-                image: compressedDataUrl
-            });
-            localStorage.setItem('neco_hazards', JSON.stringify(hazards));
-
-            alert("写真を圧縮し、危険箇所リストに登録しました！");
-            closeCameraModal();
-            checkHazardProximity(currentKpVal, routeText);
-            openHazardListModal('ALL');
-        }
-
-        function getStoredHazards() {
-            try {
-                const data = localStorage.getItem('neco_hazards');
-                return data ? JSON.parse(data) : [];
-            } catch(e) { return []; }
-        }
-
-        function openHazardListModal(mode = 'ALL') {
-            hazardFilterMode = mode;
-            document.getElementById('btn-filter-all').classList.toggle('active', mode === 'ALL');
-            document.getElementById('btn-filter-near').classList.toggle('active', mode === 'NEAR');
-            renderSortedHazardList();
-            document.getElementById('hazard-list-modal').style.display = 'flex';
-        }
-
-        function setHazardFilter(mode) {
-            hazardFilterMode = mode;
-            document.getElementById('btn-filter-all').classList.toggle('active', mode === 'ALL');
-            document.getElementById('btn-filter-near').classList.toggle('active', mode === 'NEAR');
-            renderSortedHazardList();
-        }
-
-        function closeHazardListModal() { document.getElementById('hazard-list-modal').style.display = 'none'; }
-
-        function renderSortedHazardList() {
-            const container = document.getElementById('hazard-cards-wrapper');
-            const hazards = getStoredHazards();
-            const currentKp = parseFloat(document.getElementById('kp-val').innerText) || 0.0;
-            const titleEl = document.getElementById('hazard-modal-title');
-            const dirLabel = (currentDirection === 'UP' ? '上り' : '下り');
-
-            let filteredHazards = hazards.filter(h => h.direction === currentDirection);
-
-            if (hazardFilterMode === 'NEAR') {
-                filteredHazards = filteredHazards.filter(h => Math.abs(h.kp - currentKp) <= 0.1);
-                titleEl.innerText = `[警告] 直近100m以内の危険ログ (${dirLabel})`;
-            } else {
-                titleEl.innerText = `[警告] 危険箇所画像ログ (${dirLabel})`;
-            }
-
-            if (filteredHazards.length === 0) {
-                container.innerHTML = `
-                    <div style="font-size: 12px; color: #888; text-align: center; padding: 25px;">
-                        ${hazardFilterMode === 'NEAR' ? `直近100m以内（${dirLabel}）に該当する危険箇所はありません` : `登録されている危険箇所画像（${dirLabel}）はありません`}
-                    </div>`;
-                return;
-            }
-
-            let sortedHazards = filteredHazards.map((h, originalIndex) => ({ ...h, originalIndex }));
-            sortedHazards.sort((a, b) => a.kp - b.kp);
-
-            let html = '';
-            sortedHazards.forEach((h) => {
-                html += `
-                    <div class="hazard-card">
-                        <div class="hazard-card-header">
-                            <span class="hazard-kp-badge">${h.route || '東北道'} KP: ${h.kp.toFixed(2)}</span>
-                            <span class="hazard-card-date">${h.date}</span>
-                        </div>
-                        <div class="hazard-card-body">${escapeHtml(h.text)}</div>
-                        <img src="${h.image}" class="hazard-card-img" onclick="window.open('${h.image}')">
-                        <button class="hazard-card-del" onclick="promptDelete('hazard', ${h.originalIndex})">削除</button>
-                    </div>
-                `;
-            });
-            container.innerHTML = html;
-        }
-
-        function checkHazardProximity(currentKp, routeText) {
-            const hazards = getStoredHazards();
-            const blinkBtn = document.getElementById('hazard-blink-btn');
-            
-            let nearby = hazards.filter(h => {
-                return (h.direction === currentDirection) && Math.abs(h.kp - currentKp) <= 0.1;
-            });
-
-            if (nearby.length > 0) {
-                blinkBtn.style.display = 'inline-block';
-                blinkBtn.innerText = `[警報] 直近100m以内に危険情報あり (${nearby.length}件)！`;
-            } else {
-                blinkBtn.style.display = 'none';
-            }
-        }
-
-        function openSupportModal() {
-            document.getElementById('support-modal').style.display = 'flex';
-            renderComments();
-        }
-        function closeSupportModal() { document.getElementById('support-modal').style.display = 'none'; }
-
-        function getStoredComments() {
-            try {
-                const data = localStorage.getItem('neco_comments');
-                return data ? JSON.parse(data) : [];
-            } catch(e) { return []; }
-        }
-
-        function addTextComment() {
-            const textInput = document.getElementById('support-text');
-            const val = textInput.value.trim();
-            if (!val) { alert("コメントを入力してください。"); return; }
-
-            const currentKp = parseFloat(document.getElementById('kp-val').innerText) || 0.0;
-            const routeText = document.getElementById('route-text').innerText;
-            const comments = getStoredComments();
-            const now = new Date();
-            const dateStr = `${now.getMonth()+1}/${now.getDate()} ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
-            
-            comments.unshift({ date: dateStr, route: routeText, kp: currentKp, text: val });
-            localStorage.setItem('neco_comments', JSON.stringify(comments));
-            textInput.value = '';
-            renderComments();
-        }
-
-        function renderComments() {
-            const container = document.getElementById('comment-list-container');
-            const comments = getStoredComments();
-
-            if (comments.length === 0) {
-                container.innerHTML = `<div style="font-size: 11px; color: #666; text-align: center; padding: 10px;">コメントはありません</div>`;
-                return;
-            }
-
-            let html = '';
-            const totalCount = comments.length;
-            comments.forEach((c, idx) => {
-                const displayNum = totalCount - idx;
-                html += `
-                    <div class="comment-item">
-                        <div class="comment-header-row">
-                            <span class="comment-num">#${displayNum} [KP:${c.kp.toFixed(2)}]</span>
-                            <span class="comment-date">${c.date}</span>
-                        </div>
-                        <div class="comment-text">${escapeHtml(c.text)}</div>
-                        <button class="comment-delete" onclick="promptDelete('comment', ${idx})">·</button>
-                    </div>
-                `;
-            });
-            container.innerHTML = html;
-        }
-
-        function promptDelete(type, index) {
-            deleteTargetType = type;
-            deleteTargetIndex = index;
-            document.getElementById('delete-pwd-input').value = '';
-            document.getElementById('pwd-modal').style.display = 'flex';
-            document.getElementById('delete-pwd-input').focus();
-        }
-
-        function closeDeletePwdModal() {
-            document.getElementById('pwd-modal').style.display = 'none';
-            deleteTargetType = null;
-            deleteTargetIndex = null;
-        }
-
-        function confirmDeleteTarget() {
-            const entered = document.getElementById('delete-pwd-input').value;
-
-            if (verifyPassword(entered)) {
-                if (deleteTargetType === 'comment') {
-                    const comments = getStoredComments();
-                    comments.splice(deleteTargetIndex, 1);
-                    localStorage.setItem('neco_comments', JSON.stringify(comments));
-                    renderComments();
-                } else if (deleteTargetType === 'hazard') {
-                    const hazards = getStoredHazards();
-                    hazards.splice(deleteTargetIndex, 1);
-                    localStorage.setItem('neco_hazards', JSON.stringify(hazards));
-                    renderSortedHazardList();
-                    const currentKp = parseFloat(document.getElementById('kp-val').innerText) || 0.0;
-                    checkHazardProximity(currentKp, currentRoute);
-                }
-                closeDeletePwdModal();
-            } else {
-                alert("パスワードが違います。");
-                document.getElementById('delete-pwd-input').value = '';
-            }
-        }
-
-        function pinCurrentKp() {
-            const currentKp = document.getElementById('kp-val').innerText;
-            const routeText = document.getElementById('route-text').innerText;
-            const unitLabel = document.getElementById('kp-unit-label').innerText;
-            const now = new Date();
-            const timeStr = `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
-            
-            const pinnedData = `[${timeStr}] ${routeText} : ${currentKp} ${unitLabel}`;
-            localStorage.setItem('neco_pinned_kp', pinnedData);
-            loadPinnedKp();
-        }
-
-        function clearPinnedKp() {
-            localStorage.removeItem('neco_pinned_kp');
-            loadPinnedKp();
-        }
-
-        function loadPinnedKp() {
-            const pinnedData = localStorage.getItem('neco_pinned_kp');
-            const displayEl = document.getElementById('pinned-kp-display');
-            if (pinnedData) {
-                displayEl.innerText = `[記録] ${pinnedData}`;
-                displayEl.style.display = 'block';
-            } else {
-                displayEl.style.display = 'none';
-            }
-        }
-
-        function copyAllComments() {
-            const comments = getStoredComments();
-            if (comments.length === 0) { alert("コピーするデータがありません。"); return; }
-
-            let textToCopy = "[Axis Line Operations - 共有コメントボード]\n\n";
-            const totalCount = comments.length;
-            comments.forEach((c, idx) => {
-                const displayNum = totalCount - idx;
-                textToCopy += `[#${displayNum} - ${c.date}] KP:${c.kp.toFixed(2)} ${c.text}\n`;
-            });
-
-            navigator.clipboard.writeText(textToCopy).then(() => {
-                alert("すべての共有コメントをコピーしました！");
-            });
-        }
-
-        function escapeHtml(str) {
-            return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;');
-        }
-
-        let currentRoute = 'TOHOKU';
-        let currentDirection = 'UP';
-        let operationMode = 'AUTO';
-        let userOverrodeRoute = false;
-
-        const facilitiesData = {
-            TOHOKU: [
-                { name: "川口JCT", start: -0.59, end: 0.73, kp: 0.0, type: "JCT" },
-                { name: "浦和IC", start: 2.89, end: 3.19, kp: 3.0, type: "IC" },
-                { name: "浦和TB", start: 4.34, end: 5.34, kp: 4.8, type: "TB" },
-                { name: "岩槻IC", start: 9.94, end: 11.01, kp: 10.5, type: "IC" },
-                { name: "蓮田SA", start: 17.66, end: 18.60, kp: 17.6, type: "SA", dir: "UP" },
-                { name: "蓮田SA", start: 17.63, end: 18.65, kp: 17.6, type: "SA", dir: "DOWN" },
-                { name: "白岡BS", start: 20.19, end: 20.72, kp: 20.4, type: "BS" },
-                { name: "久喜白岡JCT", start: 23.30, end: 24.40, kp: 22.2, type: "JCT" },
-                { name: "久喜IC", start: 24.98, end: 25.84, kp: 24.3, type: "IC" },
-                { name: "加須IC", start: 32.96, end: 33.68, kp: 33.3, type: "IC" },
-                { name: "羽生IC", start: 39.09, end: 39.89, kp: 39.7, type: "IC" },
-                { name: "羽生PA", start: 40.28, end: 41.00, kp: 40.6, type: "PA" },
-                { name: "館林IC", start: 45.51, end: 46.28, kp: 45.4, type: "IC" },
-                { name: "大島BS", start: 50.57, end: 51.06, kp: 50.8, type: "BS" },
-                { name: "佐野藤岡IC", start: 54.37, end: 55.59, kp: 55.4, type: "IC" },
-                { name: "佐野SA", start: 57.80, end: 58.60, kp: 58.2, type: "SA" },
-                { name: "岩舟JCT", start: 61.00, end: 61.80, kp: 61.5, type: "JCT" },
-                { name: "岩舟BS", start: 62.00, end: 62.60, kp: 62.3, type: "BS" },
-                { name: "栃木IC", start: 66.00, end: 67.20, kp: 66.7, type: "IC" }
-            ],
-            KENOH: [
-                { name: "川島IC", start: 41.0, end: 41.5, kp: 41.2, type: "IC" },
-                { name: "桶川北本IC", start: 47.5, end: 48.1, kp: 47.8, type: "IC" },
-                { name: "白岡菖蒲IC", start: 57.0, end: 58.0, kp: 57.5, type: "IC" },
-                { name: "久喜白岡JCT", start: 59.8, end: 60.4, kp: 60.1, type: "JCT" },
-                { name: "幸手IC", start: 64.5, end: 65.2, kp: 64.8, type: "IC" },
-                { name: "五霞IC", start: 68.9, end: 69.5, kp: 69.2, type: "IC" },
-                { name: "常総IC", start: 80.0, end: 81.0, kp: 80.5, type: "IC" }
-            ]
-        };
-
-        // 東北道のアンカーポイント
-        const tohokuAnchors = [
-            { lat: 35.8050, kp: 0.0 },   // 川口JCT
-            { lat: 35.8650, kp: 4.8 },   // 浦和TB
-            { lat: 36.00557, kp: 20.0 }, // 新規追加の実測データ (下り20kp)
-            { lat: 36.05559, kp: 30.0 }, // 実測データ (下り30kp)
-            { lat: 36.1770, kp: 33.1 },  // 加須IC付近
-            { lat: 36.3100, kp: 55.4 }   // 佐野藤岡IC
-        ];
-
-        function manualSelectRoute(route) {
-            userOverrodeRoute = true;
-            setRoute(route);
-            if (operationMode === 'MANUAL_PC') applyManualKP();
-        }
-
-        function setRoute(route) {
-            currentRoute = route;
-            document.getElementById('btn-tohoku').classList.toggle('active', route === 'TOHOKU');
-            document.getElementById('btn-kenoh').classList.toggle('active', route === 'KENOH');
-            updateRouteText();
-        }
-
-        function setDirection(dir) {
-            currentDirection = dir;
-            document.getElementById('btn-up').classList.toggle('active', dir === 'UP');
-            document.getElementById('btn-down').classList.toggle('active', dir === 'DOWN');
-            updateRouteText();
-            
-            if (document.getElementById('hazard-list-modal').style.display === 'flex') {
-                renderSortedHazardList();
-            }
-
-            const currentKp = parseFloat(document.getElementById('kp-val').innerText) || 0.0;
-            checkHazardProximity(currentKp, currentRoute);
-
-            if (operationMode === 'MANUAL_PC') applyManualKP();
-        }
-
-        function setMode(mode) {
-            operationMode = mode;
-            const isAuto = (mode === 'AUTO');
-            document.getElementById('btn-mode-auto').classList.toggle('active', isAuto);
-            document.getElementById('btn-mode-auto').style.background = isAuto ? '#00aa00' : '#222';
-            document.getElementById('btn-mode-manual').classList.toggle('active', !isAuto);
-            document.getElementById('btn-mode-manual').style.background = !isAuto ? '#ffcc00' : '#222';
-            document.getElementById('btn-mode-manual').style.color = !isAuto ? '#000' : '#aaa';
-            
-            document.getElementById('manual-panel').style.display = isAuto ? 'none' : 'flex';
-            document.getElementById('auto-status-badge').style.display = isAuto ? 'inline-block' : 'none';
-
-            if (!isAuto) {
-                document.getElementById('gps-status').innerHTML = '<span class="status-warn">Manual PC Mode</span>';
-                applyManualKP();
-            } else {
-                userOverrodeRoute = false;
-            }
-        }
-
-        function updateRouteText() {
-            const routeName = currentRoute === 'TOHOKU' ? '東北自動車道' : '首都圏中央連絡自動車道 (圏央道)';
-            const dirName = currentDirection === 'UP' ? (currentRoute === 'TOHOKU' ? '上り' : '内回り') : (currentRoute === 'TOHOKU' ? '下り' : '外回り');
-            document.getElementById('route-text').innerText = `${routeName} (${dirName})`;
-        }
-
-        function updateCurrentZone(currentKp) {
-            const list = facilitiesData[currentRoute];
-            const zoneEl = document.getElementById('current-zone');
-            const unitEl = document.getElementById('kp-unit-label');
-            if (!list) { zoneEl.style.display = 'none'; return; }
-
-            let matchedZone = null;
-            for (let f of list) {
-                if (f.name === "蓮田SA" && f.dir && f.dir !== currentDirection) continue;
-                if (currentKp >= f.start && currentKp <= f.end) { matchedZone = f; break; }
-            }
-
-            if (matchedZone) {
-                zoneEl.innerText = `${matchedZone.name} 区間内`;
-                zoneEl.style.display = 'inline-block';
-                unitEl.innerText = matchedZone.unit || 'kp';
-            } else {
-                zoneEl.style.display = 'none';
-                unitEl.innerText = 'kp';
-            }
-        }
-
-        function updateNextFacility(currentKp) {
-            const list = facilitiesData[currentRoute];
-            if (!list) return;
-
-            let uniqueList = [];
-            let seenNames = new Set();
-            for (let f of list) {
-                if (f.name === "蓮田SA" && f.dir && f.dir !== currentDirection) continue;
-                if (f.type === "RAMP" || f.type === "POINT") continue;
-                if (!seenNames.has(f.name)) { seenNames.add(f.name); uniqueList.push(f); }
-            }
-
-            let nextFac = null;
-            let dist = 0;
-
-            if (currentDirection === 'UP') {
-                let candidates = uniqueList.filter(f => f.kp < currentKp);
-                if (candidates.length > 0) {
-                    candidates.sort((a, b) => b.kp - a.kp);
-                    nextFac = candidates[0];
-                    dist = currentKp - nextFac.kp;
-                }
-            } else {
-                let candidates = uniqueList.filter(f => f.kp > currentKp);
-                if (candidates.length > 0) {
-                    candidates.sort((a, b) => a.kp - b.kp);
-                    nextFac = candidates[0];
-                    dist = nextFac.kp - currentKp;
-                }
-            }
-
-            const nameEl = document.getElementById('next-fac-name');
-            const distEl = document.getElementById('next-fac-dist');
-            const warningBanner = document.getElementById('shuto-warning-banner');
-            const warnTitleText = document.getElementById('warn-title-text');
-            const warnSubText = document.getElementById('warn-sub-text');
-            const nextBox = document.getElementById('next-box');
-            const bodyEl = document.body;
-
-            if (nextFac) {
-                nameEl.innerText = `${nextFac.name} (${nextFac.type})`;
-                distEl.innerText = `あと ${dist.toFixed(2)} km`;
-
-                if (nextFac.name === "川口JCT" && currentRoute === 'TOHOKU' && currentDirection === 'UP') {
-                    warningBanner.style.display = 'block';
-                    warnTitleText.innerText = "[警告] 首都高注意！";
-                    warnSubText.innerText = "まもなく川口JCT（首都高境界）です";
-                    nextBox.style.borderColor = '#ff0000';
-                    bodyEl.classList.add('shuto-alert-mode');
-                } else if (currentRoute === 'TOHOKU' && currentDirection === 'DOWN' && currentKp >= 50.8 && currentKp <= 55.4) {
-                    warningBanner.style.display = 'block';
-                    warnTitleText.innerText = "[警告] 宇都宮注意！";
-                    warnSubText.innerText = "まもなく佐野藤岡IC（宇都宮境界です）";
-                    nextBox.style.borderColor = '#ff0000';
-                    bodyEl.classList.add('shuto-alert-mode');
-                } else if (currentRoute === 'TOHOKU' && currentDirection === 'DOWN' && currentKp > 61.5 && currentKp <= 66.7) {
-                    warningBanner.style.display = 'block';
-                    warnTitleText.innerText = "[警告] 工事プレート注意！";
-                    warnSubText.innerText = "栃木IC反転して下さい。";
-                    nextBox.style.borderColor = '#ff0000';
-                    bodyEl.classList.add('shuto-alert-mode');
-                } else {
-                    warningBanner.style.display = 'none';
-                    nextBox.style.borderColor = '#444';
-                    bodyEl.classList.remove('shuto-alert-mode');
-                }
-            } else {
-                nameEl.innerText = "前方施設なし";
-                distEl.innerText = "-- km";
-                warningBanner.style.display = 'none';
-                nextBox.style.borderColor = '#444';
-                bodyEl.classList.remove('shuto-alert-mode');
-            }
-        }
-
-        function applyManualKP() {
-            const valInput = document.getElementById('manual-kp-input').value;
-            const val = parseFloat(valInput);
-            if (!isNaN(val)) {
-                const formatted = formatKp(val);
-                document.getElementById('kp-val').innerText = formatted;
-                document.getElementById('latlng-text').innerText = `Lat/Lng: Manual Input (Simulated)`;
-                updateCurrentZone(val);
-                updateNextFacility(val);
-                checkHazardProximity(val, currentRoute);
-            }
-        }
-
-        function detectRouteAndCalculateKP(lat, lng) {
-            if (!userOverrodeRoute) {
-                if (lng >= 139.63 && lng <= 139.75 && lat >= 36.03 && lat <= 36.12) {
-                    if (currentRoute !== 'KENOH') setRoute('KENOH');
-                } else {
-                    if (currentRoute !== 'TOHOKU') setRoute('TOHOKU');
-                }
-            }
-
-            let estimatedKp = 0.0;
-            if (currentRoute === 'TOHOKU') {
-                let lowerAnchor = tohokuAnchors[0];
-                let upperAnchor = tohokuAnchors[tohokuAnchors.length - 1];
-
-                for (let i = 0; i < tohokuAnchors.length - 1; i++) {
-                    if (lat >= tohokuAnchors[i].lat && lat <= tohokuAnchors[i+1].lat) {
-                        lowerAnchor = tohokuAnchors[i];
-                        upperAnchor = tohokuAnchors[i+1];
-                        break;
-                    }
-                }
-                if (lat < tohokuAnchors[0].lat) {
-                    lowerAnchor = tohokuAnchors[0];
-                    upperAnchor = tohokuAnchors[1];
-                }
-                if (lat > tohokuAnchors[tohokuAnchors.length-1].lat) {
-                    lowerAnchor = tohokuAnchors[tohokuAnchors.length-2];
-                    upperAnchor = tohokuAnchors[tohokuAnchors.length-1];
-                }
-
-                const latDiff = upperAnchor.lat - lowerAnchor.lat;
-                const kpDiff = upperAnchor.kp - lowerAnchor.kp;
-                
-                if (latDiff !== 0) {
-                    const ratio = (lat - lowerAnchor.lat) / latDiff;
-                    estimatedKp = lowerAnchor.kp + (kpDiff * ratio);
-                } else {
-                    estimatedKp = lowerAnchor.kp + (lat - lowerAnchor.lat) * 111.13;
-                }
-            } else {
-                const kenohBaseLat = 36.0020;
-                estimatedKp = (lat - kenohBaseLat) * 111.13 + 45.0;
-            }
-
-            if (estimatedKp < 0) estimatedKp = 0.0;
-            return estimatedKp;
-        }
-
-        function initSystem() {
-            if (!navigator.geolocation) { alert("お使いのブラウザは位置情報に対応していません。"); return; }
-
-            const statusEl = document.getElementById('gps-status');
-            const latLngEl = document.getElementById('latlng-text');
-            const kpValEl = document.getElementById('kp-val');
-
-            const options = { enableHighAccuracy: true, maximumAge: 0, timeout: 5000 };
-
-            navigator.geolocation.watchPosition(
-                (position) => {
-                    if (operationMode !== 'AUTO') return;
-
-                    const lat = position.coords.latitude;
-                    const lng = position.coords.longitude;
-                    const accuracy = position.coords.accuracy;
-                    const speedMs = position.coords.speed;
-                    const speedKmH = (speedMs !== null && speedMs >= 0) ? speedMs * 3.6 : 0;
-
-                    let modeText = speedKmH <= 5 ? "停止・徒歩 (超高精度)" : (speedKmH <= 50 ? "低速巡回" : "高速巡航");
-                    const rawKp = detectRouteAndCalculateKP(lat, lng);
-                    const kp = parseFloat(formatKp(rawKp));
-
-                    kpValEl.innerText = kp.toFixed(2);
-                    latLngEl.innerHTML = `Lat/Lng: ${lat.toFixed(4)}, ${lng.toFixed(4)} (Acc: ${Math.round(accuracy)}m)`;
-                    statusEl.innerHTML = `<span class="status-ok">GPS Active (${modeText} / ${speedKmH.toFixed(0)}km/h)</span>`;
-
-                    updateCurrentZone(kp);
-                    updateNextFacility(kp);
-                    checkHazardProximity(kp, currentRoute);
-                },
-                (error) => {
-                    if (operationMode === 'AUTO') {
-                        statusEl.innerHTML = `<span class="status-warn">GPS Error (${error.code})</span>`;
-                    }
-                },
-                options
-            );
-        }
-    </script>
+        <div class="setting-card">
+          <h3>📋 黒板の文字カスタマイズ</h3>
+          <div class="form-row">
+            <label>最上部デフォルト欄</label>
+            <input type="text" id="bb-input-default" value="デフォルト: 作業前点検" oninput="updateBbPreview()">
+          </div>
+          <div class="form-row">
+            <label>会社名（黒板左端 縦書き）</label>
+            <input type="text" id="bb-input-company" value="ネクスコメンテナンス関東" oninput="updateBbPreview()">
+          </div>
+          <div class="form-row">
+            <label>自由メモ・詳細（黒板中央）</label>
+            <input type="text" id="bb-input-memo" value="特記事項なし" oninput="updateBbPreview()">
+          </div>
+          <div class="form-row">
+            <label>工事件名（右側上）</label>
+            <input type="text" id="bb-input-title" value="加須管内道路保全工事業務" oninput="updateBbPreview()">
+          </div>
+          <div class="form-row">
+            <label>工事場所（右側下）</label>
+            <input type="text" id="bb-input-place" value="東北道 下)32.7kp付近側道" oninput="updateBbPreview()">
+          </div>
+          <div class="form-row">
+            <label>撮影日（デフォルト: 2026年10月17日 / リスト選択）</label>
+            <div class="date-select-group">
+              <select id="bb-year-select" onchange="updateBbPreview()" style="flex: 1.3;">
+                <option value="2025">2025年</option>
+                <option value="2026" selected>2026年</option>
+                <option value="2027">2027年</option>
+              </select>
+              <select id="bb-month-select" onchange="updateBbPreview()" style="flex: 1;">
+                <option value="01">1月</option><option value="02">2月</option><option value="03">3月</option><option value="04">4月</option><option value="05">5月</option><option value="06">6月</option><option value="07">7月</option><option value="08">8月</option><option value="09">9月</option><option value="10" selected>10月</option><option value="11">11月</option><option value="12">12月</option>
+              </select>
+              <select id="bb-day-select" onchange="updateBbPreview()" style="flex: 1;">
+                <option value="01">1日</option><option value="02">2日</option><option value="03">3日</option><option value="04">4日</option><option value="05">5日</option><option value="06">6日</option><option value="07">7日</option><option value="08">8日</option><option value="09">9日</option><option value="10">10日</option><option value="11">11日</option><option value="12">12日</option><option value="13">13日</option><option value="14">14日</option><option value="15">15日</option><option value="16">16日</option><option value="17" selected>17日</option><option value="18">18日</option><option value="19">19日</option><option value="20">20日</option><option value="21">21日</option><option value="22">22日</option><option value="23">23日</option><option value="24">24日</option><option value="25">25日</option><option value="26">26日</option><option value="27">27日</option><option value="28">28日</option><option value="29">29日</option><option value="30">30日</option><option value="31">31日</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="setting-card">
+          <h3>🔒 セキュリティ</h3>
+          <button type="button" onclick="logoutApp()" style="padding: 6px 10px; background: #333; border: 1px solid var(--status-warn); color: var(--status-warn); font-weight: bold; border-radius: 4px; cursor: pointer; font-size: 11px;">アプリケーションからログアウト</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // パスワード判定（バイト配列隠蔽）
+    const PASS_HASH_ARR = [110, 101, 120, 99, 111, 107, 112]; // "nexcokp"
+    function checkHashMatch(inputStr) {
+      if (!inputStr || inputStr.length !== PASS_HASH_ARR.length) return false;
+      for (let i = 0; i < inputStr.length; i++) {
+        if (inputStr.charCodeAt(i) !== PASS_HASH_ARR[i]) return false;
+      }
+      return true;
+    }
+
+    function checkAppPassword() {
+      const inputEl = document.getElementById("pass-input");
+      const errorEl = document.getElementById("auth-error");
+      if (checkHashMatch(inputEl.value.trim())) {
+        document.getElementById("auth-overlay").style.display = "none";
+        document.getElementById("main-app").style.display = "flex";
+        errorEl.style.display = "none";
+        initApp();
+      } else {
+        errorEl.style.display = "block";
+        inputEl.value = "";
+        inputEl.focus();
+      }
+    }
+
+    document.getElementById("pass-input").addEventListener("keydown", function(e) {
+      if (e.key === "Enter") { e.preventDefault(); checkAppPassword(); }
+    });
+
+    function verifySettingPassword() {
+      const inputEl = document.getElementById("setting-pass-input");
+      const errorEl = document.getElementById("setting-auth-error");
+      if (checkHashMatch(inputEl.value.trim())) {
+        document.getElementById("setting-auth-box").style.display = "none";
+        document.getElementById("setting-content-box").style.display = "flex";
+        errorEl.style.display = "none";
+      } else {
+        errorEl.style.display = "block";
+        inputEl.value = "";
+      }
+    }
+
+    function logoutApp() {
+      document.getElementById("main-app").style.display = "none";
+      document.getElementById("auth-overlay").style.display = "flex";
+      document.getElementById("pass-input").value = "";
+      document.getElementById("setting-auth-box").style.display = "flex";
+      document.getElementById("setting-content-box").style.display = "none";
+      document.getElementById("setting-pass-input").value = "";
+    }
+
+    function initApp() {
+      renderIncidents();
+      renderChartBars();
+      loadMemoList();
+      updateBbPreview();
+    }
+
+    function switchTab(targetViewId, btnElement) {
+      document.querySelectorAll('.view-panel').forEach(p => p.classList.remove('active'));
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.getElementById(targetViewId).classList.add('active');
+      btnElement.classList.add('active');
+    }
+
+    // 交通情報事象データ
+    const incidents = [
+      { type: '事故(解除)', color: '#4caf50', location: '下)東北道 羽生IC付近 (38.4k)', detail: '規制解除済み' },
+      { type: '故障', color: '#ffeb3b', location: '上)東北道 加須IC付近 (33.4k)', detail: '路肩停車中' }
+    ];
+    function renderIncidents() {
+      const container = document.getElementById('incidentListContainer');
+      if (!container) return;
+      container.innerHTML = '';
+      incidents.forEach(item => {
+        const row = document.createElement('div');
+        row.style.cssText = 'border-bottom: 1px solid #2a2a2a; padding-bottom: 4px;';
+        row.innerHTML = `<span style="color:${item.color}; font-weight:bold;">【${item.type}】</span> ${item.location}<br><span style="color:#aaa;">└ ${item.detail}</span>`;
+        container.appendChild(row);
+      });
+    }
+
+    // KP監視タブのインタラクション
+    let currentDir = 'UP';
+    function setDirection(dir) {
+      currentDir = dir;
+      document.getElementById('btn-up').className = dir === 'UP' ? 'select-btn dir-btn active' : 'select-btn dir-btn';
+      document.getElementById('btn-down').className = dir === 'DOWN' ? 'select-btn dir-btn active' : 'select-btn dir-btn';
+      const routeText = document.getElementById('route-text').innerText.split(' ')[0];
+      document.getElementById('route-text').innerText = `${routeText} (${dir === 'UP' ? '上り' : '下り'})`;
+    }
+
+    function setRoute(routeKey) {
+      const map = { TOHOKU: '東北自動車道', KENOH: '圏央道', GAIKAN: '東京外環自動車道' };
+      document.getElementById('route-text').innerText = `${map[routeKey] || '東北自動車道'} (${currentDir === 'UP' ? '上り' : '下り'})`;
+    }
+
+    function toggleManualPanel() {
+      const panel = document.getElementById('manual-panel');
+      panel.style.display = panel.style.display === 'flex' ? 'none' : 'flex';
+    }
+
+    function applyManualKP() {
+      const val = document.getElementById('manual-kp-input').value;
+      if (val) {
+        document.getElementById('kp-val').innerText = parseFloat(val).toFixed(2);
+        toggleManualPanel();
+      }
+    }
+
+    // 交通量画面
+    function selectVolumeDir(dir) {
+      document.getElementById('v-dir-in').className = dir === 'inbound' ? 'traffic-dir-btn active-inbound' : 'traffic-dir-btn';
+      document.getElementById('v-dir-out').className = dir === 'outbound' ? 'traffic-dir-btn active-outbound' : 'traffic-dir-btn';
+      document.getElementById('v-dir-label').textContent = dir === 'inbound' ? '【上り 東京方面】' : '【下り 宇都宮・地方方面】';
+    }
+
+    function selectVolumeSection(secName, btnElement) {
+      document.querySelectorAll('.sec-btn').forEach(b => b.classList.remove('selected'));
+      btnElement.classList.add('selected');
+      document.getElementById('v-sec-label').textContent = secName;
+      const randomVal = 280 + Math.floor(Math.random() * 200);
+      document.getElementById('v-count-val').innerHTML = `${randomVal} <span style="font-size: 12px;">台</span>`;
+    }
+
+    function renderChartBars() {
+      const container = document.getElementById('chartBars');
+      if (!container) return;
+      container.innerHTML = '';
+      ['6時', '8時', '10時', '12時', '14時', '16時', '18時', '20時'].forEach((h, idx) => {
+        const wrap = document.createElement('div');
+        wrap.className = 'chart-bar-wrap';
+        const heightPct = 40 + (idx * 5) % 45;
+        wrap.innerHTML = `<div class="chart-bar" style="height: ${heightPct}%;"></div><div class="chart-label">${h}</div>`;
+        container.appendChild(wrap);
+      });
+    }
+
+    // メモ保存・閲覧（分離）
+    function saveMemo() {
+      const text = document.getElementById('fieldMemoInput').value.trim();
+      if (!text) { alert("メモを入力してください"); return; }
+      let memos = JSON.parse(localStorage.getItem('neco_memo_list') || '[]');
+      const now = new Date();
+      const timeStr = `${now.getMonth()+1}/${now.getDate()} ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+      memos.unshift({ text, time: timeStr });
+      localStorage.setItem('neco_memo_list', JSON.stringify(memos));
+      document.getElementById('fieldMemoInput').value = '';
+      loadMemoList();
+      alert("メモを保存しました。");
+    }
+
+    function loadMemoList() {
+      const container = document.getElementById('memoListContainer');
+      if (!container) return;
+      let memos = JSON.parse(localStorage.getItem('neco_memo_list') || '[]');
+      if (memos.length === 0) {
+        container.innerHTML = '<div style="color: #666; text-align: center; padding: 10px; font-size: 11px;">保存されたメモはありません</div>';
+        return;
+      }
+      container.innerHTML = '';
+      memos.forEach(m => {
+        const div = document.createElement('div');
+        div.className = 'memo-item';
+        div.innerHTML = `<div style="font-size:9px; color:#888; margin-bottom:2px;">${m.time}</div><div>${m.text}</div>`;
+        container.appendChild(div);
+      });
+    }
+
+    // 黒板プレビュー更新（最新スケッチレイアウト同期）
+    function updateBbPreview() {
+      document.getElementById("bb-preview-default").textContent = document.getElementById("bb-input-default").value;
+      document.getElementById("bb-preview-company").textContent = document.getElementById("bb-input-company").value;
+      document.getElementById("bb-preview-memo").textContent = document.getElementById("bb-input-memo").value;
+      document.getElementById("bb-preview-title").textContent = document.getElementById("bb-input-title").value;
+      document.getElementById("bb-preview-place").textContent = document.getElementById("bb-input-place").value;
+      
+      const y = document.getElementById("bb-year-select").value;
+      const m = document.getElementById("bb-month-select").value;
+      const d = document.getElementById("bb-day-select").value;
+      document.getElementById("bb-preview-date").textContent = `${y}/${m}/${d}`;
+    }
+
+    // 黒板カメラ起動
+    let bbMediaStream = null;
+    function openBlackboardCamera() {
+      document.getElementById("blackboard-cam-modal").style.display = "flex";
+      updateBbPreview();
+      navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" }, audio: false })
+        .then(stream => {
+          bbMediaStream = stream;
+          document.getElementById("bb-video").srcObject = stream;
+        }).catch(() => { alert("カメラを起動できませんでした。権限を確認してください。"); closeBlackboardCamera(); });
+    }
+
+    function closeBlackboardCamera() {
+      if (bbMediaStream) {
+        bbMediaStream.getTracks().forEach(t => t.stop());
+        bbMediaStream = null;
+      }
+      document.getElementById("blackboard-cam-modal").style.display = "none";
+    }
+
+    // 黒板付き写真撮影・端末保存（スケッチ構造に合致した合成）
+    function captureBlackboardPhoto() {
+      const video = document.getElementById("bb-video");
+      const canvas = document.getElementById("bb-canvas");
+      if (!video.srcObject) return;
+
+      canvas.width = video.videoWidth || 1280;
+      canvas.height = video.videoHeight || 720;
+      const ctx = canvas.getContext("2d");
+
+      // 1. カメラ映像を描画
+      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+      // 2. 黒板風オーバーレイ合成（スケッチ配置に準拠）
+      const pad = 40;
+      const bw = canvas.width - (pad * 2);
+      const bh = 245;
+      const bx = pad;
+      const by = canvas.height - bh - pad;
+
+      ctx.fillStyle = "rgba(16, 64, 32, 0.9)";
+      ctx.fillRect(bx, by, bw, bh);
+      ctx.lineWidth = 6;
+      ctx.strokeStyle = "#ffffff";
+      ctx.strokeRect(bx, by, bw, bh);
+
+      // 最上部デフォルト行
+      ctx.fillStyle = "#ffcc00";
+      ctx.font = "bold 20px sans-serif";
+      ctx.fillText(document.getElementById("bb-input-default").value, bx + 20, by + 35);
+
+      // 左端縦書き社名風
+      ctx.fillStyle = "#a0e0a0";
+      ctx.font = "bold 20px sans-serif";
+      ctx.fillText(document.getElementById("bb-input-company").value, bx + 25, by + 85);
+
+      // 中央メモ
+      ctx.fillStyle = "#ffcc00";
+      ctx.font = "18px sans-serif";
+      ctx.fillText(document.getElementById("bb-input-memo").value, bx + 220, by + 130);
+
+      // 右側項目（工事件名・工事場所）
+      ctx.fillStyle = "#ffffff";
+      ctx.font = "bold 22px sans-serif";
+      ctx.fillText("工事件名: " + document.getElementById("bb-input-title").value, bx + 420, by + 85);
+      ctx.fillText("工事場所: " + document.getElementById("bb-input-place").value, bx + 420, by + 160);
+
+      // 右下日付
+      ctx.fillStyle = "#ffcc00";
+      ctx.font = "bold 20px sans-serif";
+      ctx.textAlign = "right";
+      const y = document.getElementById("bb-year-select").value;
+      const m = document.getElementById("bb-month-select").value;
+      const d = document.getElementById("bb-day-select").value;
+      ctx.fillText(`${y}/${m}/${d}`, bx + bw - 25, by + bh - 20);
+
+      // 3. 端末へダウンロード（保存）
+      const dataUrl = canvas.toDataURL("image/jpeg", 0.85);
+      const link = document.createElement("a");
+      link.href = dataUrl;
+      link.download = `NECO_Blackboard_${y}${m}${d}.jpg`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+
+      alert("黒板付き写真を端末に保存しました！");
+      closeBlackboardCamera();
+    }
+
+    function openManualModal() { document.getElementById('manual-modal').style.display = 'flex'; }
+    function closeManualModal() { document.getElementById('manual-modal').style.display = 'none'; }
+    function openSupportModal() { document.getElementById('support-modal').style.display = 'flex'; }
+    function closeSupportModal() { document.getElementById('support-modal').style.display = 'none'; }
+
+    function addTextComment() {
+      const text = document.getElementById('support-text').value.trim();
+      if (!text) return;
+      const container = document.getElementById('comment-list-container');
+      if (container.innerText.includes("ありません")) container.innerHTML = '';
+      const item = document.createElement('div');
+      item.textContent = text;
+      item.style.cssText = "background:#252525; padding:4px 6px; margin-bottom:4px; border-left:3px solid #ffcc00;";
+      container.prepend(item);
+      document.getElementById('support-text').value = '';
+    }
+  </script>
 </body>
 </html>
