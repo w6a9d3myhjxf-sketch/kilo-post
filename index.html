@@ -236,27 +236,101 @@
     .btn-quick-clear { flex: 1; background: #444; color: #ccc; font-weight: bold; font-size: 11px; padding: 6px; border: none; border-radius: 6px; cursor: pointer; }
     .pinned-kp-display { width: 100%; font-size: 10px; color: #00ff66; background: rgba(0,255,102,0.06); border: 1px solid rgba(0,255,102,0.25); padding: 4px 6px; border-radius: 6px; text-align: center; }
 
-    /* 手動入力パネル */
     #manual-panel { background: rgba(40,40,40,0.95); padding: 6px; margin-top: 6px; border-radius: 6px; display: none; justify-content: center; align-items: center; gap: 6px; font-size: 11px; width: 90%; max-width: 320px; }
     #manual-panel input { width: 90px; padding: 4px; background: #111; border: 1px solid #666; color: #ffcc00; font-size: 13px; font-weight: bold; text-align: center; border-radius: 4px; }
     #manual-panel button { padding: 4px 8px; background: #ffcc00; border: none; font-weight: bold; border-radius: 4px; cursor: pointer; color: #000; }
 
-    /* 3. 交通量画面 */
+    /* 3. 交通量画面（手書きメモ準拠ボタン配置） */
     .volume-content { display: flex; flex-direction: column; gap: 8px; padding: 6px; overflow-y: auto; flex: 1; }
+    
+    .vol-route-group {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 10px;
+      margin-bottom: 8px;
+    }
+    .vol-route-title {
+      font-size: 12px;
+      color: var(--accent);
+      font-weight: bold;
+      margin-bottom: 8px;
+      border-bottom: 1px solid #383838;
+      padding-bottom: 4px;
+    }
+    .vol-btn-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+      gap: 6px;
+    }
+    .vol-sec-btn {
+      padding: 10px 6px;
+      background: #1e1e1e;
+      border: 1px solid #444;
+      color: #ffffff;
+      border-radius: 6px;
+      font-size: 11px;
+      font-weight: bold;
+      cursor: pointer;
+      text-align: center;
+      transition: all 0.2s ease;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 2px;
+    }
+    .vol-sec-btn span.sub-text {
+      font-size: 8.5px;
+      color: var(--text-sub);
+      font-weight: normal;
+    }
+    .vol-sec-btn:hover {
+      background: #00bcd4;
+      color: #000000;
+      border-color: #00bcd4;
+    }
+    .vol-sec-btn:hover span.sub-text {
+      color: #222222;
+    }
+
+    /* 交通量詳細画面 */
+    .vol-detail-container {
+      display: none;
+      flex-direction: column;
+      gap: 10px;
+      flex: 1;
+    }
+    .vol-back-btn {
+      padding: 8px 14px;
+      background: #333;
+      border: 1px solid var(--accent);
+      color: var(--accent);
+      font-weight: bold;
+      font-size: 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      align-self: flex-start;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .vol-back-btn:hover {
+      background: var(--accent);
+      color: #000;
+    }
+
     .dir-selector { display: flex; gap: 8px; }
     .traffic-dir-btn {
       flex: 1; padding: 8px; border: 2px solid var(--border-color); background: var(--bg-card); color: var(--text-sub); font-weight: bold; font-size: 12px; border-radius: 6px; cursor: pointer; text-align: center;
     }
     .traffic-dir-btn.active-inbound { border-color: #4caf50; background: rgba(76, 175, 80, 0.15); color: #81c784; }
     .traffic-dir-btn.active-outbound { border-color: #2196f3; background: rgba(33, 150, 243, 0.15); color: #64b5f6; }
-    .section-btn-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 4px; }
-    .sec-btn { padding: 6px; background: var(--bg-card); border: 1px solid var(--border-color); color: var(--text-main); border-radius: 5px; font-size: 11px; cursor: pointer; text-align: center; }
-    .sec-btn.selected { background: var(--accent) !important; color: #000 !important; font-weight: bold; border-color: var(--accent) !important; }
-    .volume-stats-card { background: var(--bg-card); border-radius: 8px; padding: 8px; border-left: 4px solid var(--accent); }
-    .chart-box { display: flex; align-items: flex-end; gap: 4px; height: 70px; padding-top: 6px; border-bottom: 1px solid var(--border-color); }
+    .volume-stats-card { background: var(--bg-card); border-radius: 8px; padding: 12px; border-left: 4px solid var(--accent); }
+    .chart-box { display: flex; align-items: flex-end; gap: 6px; height: 100px; padding-top: 10px; border-bottom: 1px solid var(--border-color); }
     .chart-bar-wrap { flex: 1; display: flex; flex-direction: column; align-items: center; height: 100%; justify-content: flex-end; }
     .chart-bar { width: 100%; background: var(--accent); border-radius: 2px 2px 0 0; min-height: 4px; }
-    .chart-label { font-size: 8.5px; color: var(--text-sub); margin-top: 2px; }
+    .chart-label { font-size: 9px; color: var(--text-sub); margin-top: 4px; }
 
     /* 4. メモ画面 */
     .memo-layout { display: flex; flex-direction: column; gap: 8px; flex: 1; padding: 4px; overflow-y: auto; }
@@ -266,7 +340,7 @@
     .memo-list-container { flex: 1; background: #151515; border: 1px solid #333; border-radius: 6px; padding: 8px; max-height: 180px; overflow-y: auto; }
     .memo-item { background: #222; border-left: 3px solid var(--accent); padding: 6px 8px; margin-bottom: 6px; border-radius: 4px; font-size: 11px; }
 
-    /* 5. 設定画面と新・黒板レイアウト（スケッチ再現） */
+    /* 5. 設定画面 */
     .setting-card { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 8px; padding: 10px; margin-bottom: 8px; }
     .setting-card h3 { font-size: 12px; color: var(--accent); margin-bottom: 6px; }
     .form-row { display: flex; flex-direction: column; gap: 3px; margin-bottom: 6px; }
@@ -274,7 +348,7 @@
     .form-row input, .form-row select { padding: 6px; background: #111; border: 1px solid #444; color: #fff; border-radius: 4px; font-size: 12px; }
     .date-select-group { display: flex; gap: 4px; }
 
-    /* 黒板付きカメラプレビュー（最新スケッチ画像通りの配置：上部デフォルト行、右側工事件名/工事場所、中央メモ、左側社名、右下日付） */
+    /* 黒板付きカメラプレビュー */
     #blackboard-cam-modal {
       position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.96); display: none; flex-direction: column; align-items: center; justify-content: center; z-index: 11000; padding: 10px;
     }
@@ -299,7 +373,6 @@
       pointer-events: none;
       box-shadow: 0 4px 12px rgba(0,0,0,0.5);
     }
-    /* 最上部：デフォルト行（全列またぎ） */
     .bb-top-row {
       grid-column: span 3;
       border-bottom: 1px solid rgba(255,255,255,0.4);
@@ -310,7 +383,6 @@
       font-weight: bold;
       color: #ffcc00;
     }
-    /* 左端：縦書き会社名 */
     .bb-col-left {
       grid-row: span 2;
       border-right: 1px solid rgba(255,255,255,0.4);
@@ -323,7 +395,6 @@
       color: #a0e0a0;
       letter-spacing: 2px;
     }
-    /* 中央：自由メモエリア */
     .bb-col-center {
       grid-row: span 2;
       border-right: 1px solid rgba(255,255,255,0.4);
@@ -332,7 +403,6 @@
       flex-direction: column;
       justify-content: center;
     }
-    /* 右側：工事件名 / 工事場所セル */
     .bb-cell {
       border-bottom: 1px solid rgba(255,255,255,0.4);
       padding: 3px 4px;
@@ -393,16 +463,16 @@
       <h3 style="color: #00ffff; font-size: 14px; margin-bottom: 8px; text-align: center;">[説明] N.E.C.O. システム説明書</h3>
       <div style="font-size: 11px; line-height: 1.5; color: #ddd; overflow-y: auto; max-height: 60vh;">
         <b>実測ベース補正:</b> 主要IC/JCTのアンカーポイントを基に高精度KPを算出します。<br>
-        <b>設定・黒板撮影:</b> 「設定」タブ（要パスワード）より、最新スケッチ様式に合わせた黒板付きカメラで現場写真を撮影・端末保存できます。
+        <b>設定・黒板撮影:</b> 「設定」タブ（要パスワード）より、手書きスケッチ様式に合わせた黒板付きカメラで現場写真を撮影・端末保存できます。
       </div>
       <button type="button" class="modal-btn btn-cancel" onclick="closeManualModal()" style="margin-top: 10px;">閉じる</button>
     </div>
   </div>
 
-  <!-- 黒板付きカメラ撮影モーダル（スケッチ完全再現） -->
+  <!-- 黒板付きカメラ撮影モーダル -->
   <div id="blackboard-cam-modal">
     <div style="width: 100%; max-width: 440px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-      <span style="font-size: 13px; font-weight: bold; color: #ffaa00;">📷 黒板付き現場撮影（スケッチレイアウト）</span>
+      <span style="font-size: 13px; font-weight: bold; color: #ffaa00;">📷 黒板付き現場撮影</span>
       <button type="button" onclick="closeBlackboardCamera()" style="background:#444; color:#fff; border:none; padding:4px 10px; border-radius:4px; font-size:11px; cursor:pointer;">閉じる</button>
     </div>
 
@@ -410,7 +480,6 @@
       <video id="bb-video" autoplay playsinline muted></video>
       <canvas id="bb-canvas"></canvas>
       
-      <!-- 黒板オーバーレイ（最新スケッチ構造） -->
       <div class="blackboard-overlay" id="blackboard-preview-box">
         <div class="bb-top-row" id="bb-preview-default">デフォルト: 作業前点検</div>
         <div class="bb-col-left" id="bb-preview-company">ネクスコメンテナンス関東</div>
@@ -439,7 +508,7 @@
     </div>
   </div>
 
-  <!-- コメントボードモーダル（設定画面から呼び出し） -->
+  <!-- コメントボードモーダル -->
   <div id="support-modal" style="display: none;">
     <div class="modal-content-box">
       <h3 style="color: #00ffff; font-size: 14px; margin-bottom: 6px;">[情報] 共有コメントボード</h3>
@@ -466,33 +535,27 @@
       <button type="button" class="tab-btn" onclick="switchTab('settings-view', this)">⚙️ 設定</button>
     </nav>
 
-    <!-- 1. 交通情報画面（インター名称・凡例を完全復元） -->
+    <!-- 1. 交通情報画面 -->
     <div id="traffic-view" class="view-panel active">
       <div class="map-content-layout">
         <div class="map-wrapper">
           <svg viewBox="0 0 850 680" width="100%" height="100%" style="flex:1; min-height: 480px;">
-            <!-- 首都高速川口線 -->
             <line x1="396" y1="670" x2="396" y2="560" class="road-line-base" />
             <line x1="404" y1="670" x2="404" y2="560" class="road-line-base" />
-            <!-- 東北自動車道 -->
             <line x1="396" y1="560" x2="396" y2="340" class="road-line-speed" />
             <line x1="404" y1="560" x2="404" y2="340" class="road-line-speed" />
             <line x1="396" y1="340" x2="396" y2="20" class="road-line-jam" />
             <line x1="404" y1="340" x2="404" y2="20" class="road-line-jam" />
-            <!-- 圏央道 -->
             <line x1="35" y1="276" x2="830" y2="276" class="road-line-snow" />
             <line x1="35" y1="284" x2="830" y2="284" class="road-line-snow" />
-            <!-- 東京外環自動車道 -->
             <line x1="260" y1="556" x2="630" y2="556" class="road-line-base" />
             <line x1="260" y1="564" x2="630" y2="564" class="road-line-base" />
 
-            <!-- 路線名ラベル -->
             <rect x="520" y="645" width="100" height="18" class="route-title-bg" /><text x="570" y="657" class="route-title-text">首都高速川口線</text>
             <rect x="460" y="360" width="80" height="18" class="route-title-bg" /><text x="500" y="373" class="route-title-text">東北自動車道</text>
             <rect x="40" y="315" width="55" height="16" class="route-title-bg" /><text x="67" y="327" class="route-title-text">圏央道</text>
             <rect x="40" y="495" width="50" height="16" class="route-title-bg" /><text x="65" y="507" class="route-title-text">外環道</text>
 
-            <!-- 東北道IC・JCTノード一覧（インター名称完全表示） -->
             <g transform="translate(400, 0)">
               <rect x="-36" y="612" width="72" height="16" class="node-bg" /><text x="0" y="623" class="node-label-horiz">川口本線TB</text><text x="39" y="623" class="node-kp-horiz-right">11.9k</text>
               <rect x="-28" y="552" width="56" height="16" class="node-bg" /><text x="0" y="563" class="node-label-horiz">川口JCT</text><text x="31" y="575" class="node-kp-horiz-right">0.0k</text>
@@ -503,7 +566,6 @@
             </g>
           </svg>
 
-          <!-- 凡例 -->
           <div class="map-legend">
             <div class="legend-item"><span style="color:var(--nexco-green); font-weight:bold;">━━</span> 順調</div>
             <div class="legend-item"><span style="color:var(--status-warn); font-weight:bold;">━━</span> 渋滞</div>
@@ -522,14 +584,13 @@
       </div>
     </div>
 
-    <!-- 2. KP監視画面（カメラボタン、手動ボタン、上下ボタンを完全復元） -->
+    <!-- 2. KP監視画面 -->
     <div id="kp-view" class="view-panel">
       <div class="section-title">
         <span>📍 キロポスト現在地リアルタイム監視</span>
         <span style="font-size: 10px; color: var(--status-ok);">GPS連動中</span>
       </div>
       <div class="kp-container">
-        <!-- 路線切替ボタン -->
         <div class="control-row" style="margin-bottom: 4px;">
           <button type="button" class="select-btn active" onclick="setRoute('TOHOKU')">東北道</button>
           <button type="button" class="select-btn" onclick="setRoute('KENOH')">圏央道</button>
@@ -537,13 +598,11 @@
           <button type="button" class="select-btn active" style="background:#00aa00; color:#fff; border-color:#00cc00;">自動判定</button>
           <button type="button" class="select-btn" onclick="toggleManualPanel()">手動PC</button>
         </div>
-        <!-- 上り・下り切替ボタン（確実に押せる仕様） -->
         <div class="control-row" style="margin-bottom: 4px;">
           <button type="button" id="btn-up" class="select-btn dir-btn active" onclick="setDirection('UP')">UP (上り/内回り)</button>
           <button type="button" id="btn-down" class="select-btn dir-btn" onclick="setDirection('DOWN')">DOWN (下り/外回り)</button>
         </div>
 
-        <!-- 手動入力パネル -->
         <div id="manual-panel">
           <span>シミュレートKP:</span>
           <input type="number" id="manual-kp-input" value="33.10" step="0.05">
@@ -555,7 +614,6 @@
           <span class="kp-display" id="kp-val">33.10</span><span class="kp-unit">kp</span>
         </div>
 
-        <!-- 記録ボタンエリア -->
         <div class="quick-action-area">
           <div class="quick-btn-row">
             <button type="button" class="btn-quick-record" onclick="alert('現在のKPを記録しました')">[記録] 現在KPを記録</button>
@@ -577,32 +635,154 @@
       </div>
     </div>
 
-    <!-- 3. 交通量画面（佐野、圏央道、外環などの位置指定ボタンを復元） -->
+    <!-- 3. 交通量画面（画像の手書きメモ通りに完全対応） -->
     <div id="volume-view" class="view-panel">
       <div class="section-title"><span>📊 区間別 交通量（通行台数データ）</span></div>
-      <div class="volume-content">
-        <div class="dir-selector">
-          <button type="button" class="traffic-dir-btn active-inbound" id="v-dir-in" onclick="selectVolumeDir('inbound')">⬆️ 上り 東京方面</button>
-          <button type="button" class="traffic-dir-btn" id="v-dir-out" onclick="selectVolumeDir('outbound')">⬇️ 下り 宇都宮・地方方面</button>
+      
+      <!-- ① 交通量メニュー選択画面（ボタン一覧） -->
+      <div id="vol-menu-screen" class="volume-content">
+        
+        <!-- 1. 東北道（下り） & 首都高 -->
+        <div class="vol-route-group">
+          <div class="vol-route-title">■ 東北自動車道・首都高速（下り）</div>
+          <div class="vol-btn-grid">
+            <button type="button" class="vol-sec-btn" onclick="openVolumeDetail('首都高下り: 新郷〜安行 (川口本線料金所)', '川口本線料金所')">
+              川口本線料金所
+              <span class="sub-text">(新郷〜安行)</span>
+            </button>
+            <button type="button" class="vol-sec-btn" onclick="openVolumeDetail('東北道下り: 川口JCT〜浦和IC', '川口JCT')">
+              川口JCT
+              <span class="sub-text">(川口JCT〜浦和)</span>
+            </button>
+            <button type="button" class="vol-sec-btn" onclick="openVolumeDetail('東北道下り: 浦和〜岩槻', '浦和TB')">
+              浦和TB
+              <span class="sub-text">(浦和〜岩槻)</span>
+            </button>
+            <button type="button" class="vol-sec-btn" onclick="openVolumeDetail('東北道下り: 岩槻〜久喜', '岩槻IC')">
+              岩槻IC
+              <span class="sub-text">(岩槻〜久喜)</span>
+            </button>
+            <button type="button" class="vol-sec-btn" onclick="openVolumeDetail('東北道下り: 久喜〜加須', '久喜IC')">
+              久喜IC
+              <span class="sub-text">(久喜〜加須)</span>
+            </button>
+            <button type="button" class="vol-sec-btn" onclick="openVolumeDetail('東北道下り: 加須〜羽生', '加須IC')">
+              加須IC
+              <span class="sub-text">(加須〜羽生)</span>
+            </button>
+            <button type="button" class="vol-sec-btn" onclick="openVolumeDetail('東北道下り: 羽生〜館林', '羽生IC')">
+              羽生IC
+              <span class="sub-text">(羽生〜館林)</span>
+            </button>
+            <button type="button" class="vol-sec-btn" onclick="openVolumeDetail('東北道下り: 館林〜佐野藤岡', '館林IC')">
+              館林IC
+              <span class="sub-text">(館林〜佐野藤岡)</span>
+            </button>
+          </div>
         </div>
-        <div style="font-size: 11px; color: var(--accent); font-weight: bold; margin-top: 4px;">■ 路線・区間選択</div>
-        <div class="section-btn-grid">
-          <button type="button" class="sec-btn selected" onclick="selectVolumeSection('川口料金所 〜 川口JCT', this)">東北道: 川口〜川口JCT</button>
-          <button type="button" class="sec-btn" onclick="selectVolumeSection('久喜IC 〜 加須IC', this)">東北道: 久喜〜加須</button>
-          <button type="button" class="sec-btn" onclick="selectVolumeSection('加須IC 〜 羽生IC', this)">東北道: 加須〜羽生</button>
-          <button type="button" class="sec-btn" onclick="selectVolumeSection('佐野藤岡IC 〜 館林IC', this)">東北道: 佐野〜館林</button>
-          <button type="button" class="sec-btn" onclick="selectVolumeSection('圏央道: 久喜白岡JCT 〜 幸手IC', this)">圏央道: 久喜白岡〜幸手</button>
-          <button type="button" class="sec-btn" onclick="selectVolumeSection('外環道: 外環川口IC 〜 草加IC', this)">外環道: 川口〜草加</button>
+
+        <!-- 2. 東北道（上り） -->
+        <div class="vol-route-group">
+          <div class="vol-route-title">■ 東北自動車道（上り）</div>
+          <div class="vol-btn-grid">
+            <button type="button" class="vol-sec-btn" onclick="openVolumeDetail('東北道上り: 岩舟JCT〜佐野藤岡', '岩舟JCT')">
+              岩舟JCT
+              <span class="sub-text">(岩舟JCT〜佐野藤岡)</span>
+            </button>
+            <button type="button" class="vol-sec-btn" onclick="openVolumeDetail('東北道上り: 佐野藤岡〜館林', '佐野藤岡')">
+              佐野藤岡
+              <span class="sub-text">(佐野藤岡〜館林)</span>
+            </button>
+            <button type="button" class="vol-sec-btn" onclick="openVolumeDetail('東北道上り: 館林〜羽生', '館林')">
+              館林
+              <span class="sub-text">(館林〜羽生)</span>
+            </button>
+            <button type="button" class="vol-sec-btn" onclick="openVolumeDetail('東北道上り: 羽生〜加須', '羽生')">
+              羽生
+              <span class="sub-text">(羽生〜加須)</span>
+            </button>
+            <button type="button" class="vol-sec-btn" onclick="openVolumeDetail('東北道上り: 加須〜久喜', '加須')">
+              加須
+              <span class="sub-text">(加須〜久喜)</span>
+            </button>
+            <button type="button" class="vol-sec-btn" onclick="openVolumeDetail('東北道上り: 久喜〜岩槻', '久喜')">
+              久喜
+              <span class="sub-text">(久喜〜岩槻)</span>
+            </button>
+            <button type="button" class="vol-sec-btn" onclick="openVolumeDetail('東北道上り: 岩槻〜浦和', '岩槻')">
+              岩槻
+              <span class="sub-text">(岩槻〜浦和)</span>
+            </button>
+            <button type="button" class="vol-sec-btn" onclick="openVolumeDetail('東北道上り: 浦和〜川口JCT', '浦和IC')">
+              浦和IC
+              <span class="sub-text">(浦和〜川口JCT)</span>
+            </button>
+          </div>
         </div>
+
+        <!-- 3. 圏央道（外回り） -->
+        <div class="vol-route-group">
+          <div class="vol-route-title">■ 圏央道（外回り）</div>
+          <div class="vol-btn-grid">
+            <button type="button" class="vol-sec-btn" onclick="openVolumeDetail('圏央道外回り: 坂戸〜狭山日高', '坂戸')">
+              坂戸
+              <span class="sub-text">(坂戸〜狭山日高)</span>
+            </button>
+            <button type="button" class="vol-sec-btn" onclick="openVolumeDetail('圏央道外回り: 桶川北本〜白岡菖蒲', '白岡菖蒲')">
+              白岡菖蒲
+              <span class="sub-text">(桶川北本〜白岡菖蒲)</span>
+            </button>
+            <button type="button" class="vol-sec-btn" onclick="openVolumeDetail('圏央道外回り: 幸手〜境古河', '幸手')">
+              幸手
+              <span class="sub-text">(幸手〜境古河)</span>
+            </button>
+            <button type="button" class="vol-sec-btn" onclick="openVolumeDetail('圏央道外回り: 坂東〜常総', '坂東')">
+              坂東
+              <span class="sub-text">(坂東〜常総)</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- 4. 圏央道（内回り） -->
+        <div class="vol-route-group">
+          <div class="vol-route-title">■ 圏央道（内回り）</div>
+          <div class="vol-btn-grid">
+            <button type="button" class="vol-sec-btn" onclick="openVolumeDetail('圏央道内回り: つくば中央〜つくばJCT', 'つくば中央')">
+              つくば中央
+              <span class="sub-text">(つくば中央〜つくばJCT)</span>
+            </button>
+            <button type="button" class="vol-sec-btn" onclick="openVolumeDetail('圏央道内回り: 常総〜坂東', '常総')">
+              常総
+              <span class="sub-text">(常総〜坂東)</span>
+            </button>
+            <button type="button" class="vol-sec-btn" onclick="openVolumeDetail('圏央道内回り: 境古河〜幸手', '境古河')">
+              境古河
+              <span class="sub-text">(境古河〜幸手)</span>
+            </button>
+            <button type="button" class="vol-sec-btn" onclick="openVolumeDetail('圏央道内回り: 幸手〜久喜白岡JCT', '幸手')">
+              幸手
+              <span class="sub-text">(幸手〜久喜白岡JCT)</span>
+            </button>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ② 交通量詳細画面 -->
+      <div id="vol-detail-screen" class="vol-detail-container">
+        <button type="button" class="vol-back-btn" onclick="closeVolumeDetail()">
+          🔙 選択画面に戻る
+        </button>
+
         <div class="volume-stats-card">
-          <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 4px;">
+          <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 6px;">
             <div>
-              <span style="font-size: 9.5px; color: var(--text-sub);" id="v-dir-label">【上り 東京方面】</span>
-              <h4 style="font-size: 14px; color: var(--text-main);" id="v-sec-label">川口本線料金所 〜 川口JCT</h4>
+              <span style="font-size: 10px; color: var(--text-sub);" id="v-btn-name">観測ポイント</span>
+              <h4 style="font-size: 15px; color: var(--text-main);" id="v-sec-label">区間名</h4>
             </div>
             <div style="text-align: right;">
-              <div style="font-size: 8.5px; color: var(--text-sub);">直近5分間通行台数</div>
-              <div style="font-size: 24px; font-weight: 900; color: var(--accent);" id="v-count-val">420 <span style="font-size: 12px;">台</span></div>
+              <div style="font-size: 9px; color: var(--text-sub);">直近5分間通行台数</div>
+              <div style="font-size: 26px; font-weight: 900; color: var(--accent);" id="v-count-val">420 <span style="font-size: 12px;">台</span></div>
             </div>
           </div>
           <div class="chart-box" id="chartBars"></div>
@@ -610,7 +790,7 @@
       </div>
     </div>
 
-    <!-- 4. メモ画面（入力欄と見る欄に分離） -->
+    <!-- 4. メモ画面 -->
     <div id="memo-view" class="view-panel">
       <div class="section-title"><span>📝 現場申し送りメモ</span></div>
       <div class="memo-layout">
@@ -628,7 +808,7 @@
       </div>
     </div>
 
-    <!-- 5. 設定画面（コメントボタン移動、黒板カメラ、日付リスト: デフォルト2026年10月17日） -->
+    <!-- 5. 設定画面 -->
     <div id="settings-view" class="view-panel">
       <div class="section-title"><span>⚙️ システム設定・黒板撮影</span></div>
       
@@ -643,7 +823,6 @@
       </div>
 
       <div id="setting-content-box" style="display: none; flex-direction: column; flex: 1; overflow-y: auto; gap: 8px; padding: 4px;">
-        <!-- コメントボタン移動先 -->
         <div class="setting-card" style="background: rgba(255,204,0,0.06); border-color: #ffcc00;">
           <h3>💬 共有コメントボード</h3>
           <p style="font-size: 10px; color: var(--text-sub); margin-bottom: 6px;">現場スタッフ間での連絡事項やコメントを確認・追加します。</p>
@@ -654,7 +833,7 @@
 
         <div class="setting-card">
           <h3>📷 黒板付き現場カメラ撮影</h3>
-          <p style="font-size: 10px; color: var(--text-sub); margin-bottom: 6px;">最新スケッチ様式（上部デフォルト・右側項目・中央メモ）に合わせた黒板合成カメラを起動します。</p>
+          <p style="font-size: 10px; color: var(--text-sub); margin-bottom: 6px;">最新スケッチ様式に合わせた黒板合成カメラを起動します。</p>
           <button type="button" onclick="openBlackboardCamera()" style="width:100%; padding:8px; background:#ffaa00; color:#000; font-weight:bold; border:none; border-radius:6px; cursor:pointer; font-size:12px;">
             🎥 黒板カメラ起動
           </button>
@@ -709,8 +888,8 @@
   </div>
 
   <script>
-    // パスワード判定（バイト配列隠蔽）
-    const PASS_HASH_ARR = [110, 101, 120, 99, 111, 107, 112]; // "nexcokp"
+    // パスワード判定（"nexcokp"）
+    const PASS_HASH_ARR = [110, 101, 120, 99, 111, 107, 112];
     function checkHashMatch(inputStr) {
       if (!inputStr || inputStr.length !== PASS_HASH_ARR.length) return false;
       for (let i = 0; i < inputStr.length; i++) {
@@ -762,7 +941,6 @@
 
     function initApp() {
       renderIncidents();
-      renderChartBars();
       loadMemoList();
       updateBbPreview();
     }
@@ -791,7 +969,7 @@
       });
     }
 
-    // KP監視タブのインタラクション
+    // KP監視インタラクション
     let currentDir = 'UP';
     function setDirection(dir) {
       currentDir = dir;
@@ -819,19 +997,24 @@
       }
     }
 
-    // 交通量画面
-    function selectVolumeDir(dir) {
-      document.getElementById('v-dir-in').className = dir === 'inbound' ? 'traffic-dir-btn active-inbound' : 'traffic-dir-btn';
-      document.getElementById('v-dir-out').className = dir === 'outbound' ? 'traffic-dir-btn active-outbound' : 'traffic-dir-btn';
-      document.getElementById('v-dir-label').textContent = dir === 'inbound' ? '【上り 東京方面】' : '【下り 宇都宮・地方方面】';
+    // --- 交通量画面の制御 ---
+    function openVolumeDetail(secName, btnLabel) {
+      document.getElementById('vol-menu-screen').style.display = 'none';
+      document.getElementById('vol-detail-screen').style.display = 'flex';
+      document.getElementById('v-sec-label').textContent = secName;
+      document.getElementById('v-btn-name').textContent = `観測点: ${btnLabel}`;
+      updateVolumeStats();
     }
 
-    function selectVolumeSection(secName, btnElement) {
-      document.querySelectorAll('.sec-btn').forEach(b => b.classList.remove('selected'));
-      btnElement.classList.add('selected');
-      document.getElementById('v-sec-label').textContent = secName;
-      const randomVal = 280 + Math.floor(Math.random() * 200);
-      document.getElementById('v-count-val').innerHTML = `${randomVal} <span style="font-size: 12px;">台</span>`;
+    function closeVolumeDetail() {
+      document.getElementById('vol-detail-screen').style.display = 'none';
+      document.getElementById('vol-menu-screen').style.display = 'flex';
+    }
+
+    function updateVolumeStats() {
+      const count = 280 + Math.floor(Math.random() * 210);
+      document.getElementById('v-count-val').innerHTML = `${count} <span style="font-size: 12px;">台</span>`;
+      renderChartBars();
     }
 
     function renderChartBars() {
@@ -841,13 +1024,13 @@
       ['6時', '8時', '10時', '12時', '14時', '16時', '18時', '20時'].forEach((h, idx) => {
         const wrap = document.createElement('div');
         wrap.className = 'chart-bar-wrap';
-        const heightPct = 40 + (idx * 5) % 45;
+        const heightPct = 35 + (idx * 7 + Math.floor(Math.random() * 20)) % 55;
         wrap.innerHTML = `<div class="chart-bar" style="height: ${heightPct}%;"></div><div class="chart-label">${h}</div>`;
         container.appendChild(wrap);
       });
     }
 
-    // メモ保存・閲覧（分離）
+    // メモ機能
     function saveMemo() {
       const text = document.getElementById('fieldMemoInput').value.trim();
       if (!text) { alert("メモを入力してください"); return; }
@@ -878,7 +1061,7 @@
       });
     }
 
-    // 黒板プレビュー更新（最新スケッチレイアウト同期）
+    // 黒板プレビュー更新
     function updateBbPreview() {
       document.getElementById("bb-preview-default").textContent = document.getElementById("bb-input-default").value;
       document.getElementById("bb-preview-company").textContent = document.getElementById("bb-input-company").value;
@@ -892,7 +1075,7 @@
       document.getElementById("bb-preview-date").textContent = `${y}/${m}/${d}`;
     }
 
-    // 黒板カメラ起動
+    // 黒板カメラ制御
     let bbMediaStream = null;
     function openBlackboardCamera() {
       document.getElementById("blackboard-cam-modal").style.display = "flex";
@@ -912,7 +1095,6 @@
       document.getElementById("blackboard-cam-modal").style.display = "none";
     }
 
-    // 黒板付き写真撮影・端末保存（スケッチ構造に合致した合成）
     function captureBlackboardPhoto() {
       const video = document.getElementById("bb-video");
       const canvas = document.getElementById("bb-canvas");
@@ -922,10 +1104,8 @@
       canvas.height = video.videoHeight || 720;
       const ctx = canvas.getContext("2d");
 
-      // 1. カメラ映像を描画
       ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
 
-      // 2. 黒板風オーバーレイ合成（スケッチ配置に準拠）
       const pad = 40;
       const bw = canvas.width - (pad * 2);
       const bh = 245;
@@ -938,28 +1118,23 @@
       ctx.strokeStyle = "#ffffff";
       ctx.strokeRect(bx, by, bw, bh);
 
-      // 最上部デフォルト行
       ctx.fillStyle = "#ffcc00";
       ctx.font = "bold 20px sans-serif";
       ctx.fillText(document.getElementById("bb-input-default").value, bx + 20, by + 35);
 
-      // 左端縦書き社名風
       ctx.fillStyle = "#a0e0a0";
       ctx.font = "bold 20px sans-serif";
       ctx.fillText(document.getElementById("bb-input-company").value, bx + 25, by + 85);
 
-      // 中央メモ
       ctx.fillStyle = "#ffcc00";
       ctx.font = "18px sans-serif";
       ctx.fillText(document.getElementById("bb-input-memo").value, bx + 220, by + 130);
 
-      // 右側項目（工事件名・工事場所）
       ctx.fillStyle = "#ffffff";
       ctx.font = "bold 22px sans-serif";
       ctx.fillText("工事件名: " + document.getElementById("bb-input-title").value, bx + 420, by + 85);
       ctx.fillText("工事場所: " + document.getElementById("bb-input-place").value, bx + 420, by + 160);
 
-      // 右下日付
       ctx.fillStyle = "#ffcc00";
       ctx.font = "bold 20px sans-serif";
       ctx.textAlign = "right";
@@ -968,7 +1143,6 @@
       const d = document.getElementById("bb-day-select").value;
       ctx.fillText(`${y}/${m}/${d}`, bx + bw - 25, by + bh - 20);
 
-      // 3. 端末へダウンロード（保存）
       const dataUrl = canvas.toDataURL("image/jpeg", 0.85);
       const link = document.createElement("a");
       link.href = dataUrl;
